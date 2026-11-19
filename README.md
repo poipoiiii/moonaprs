@@ -1,0 +1,113 @@
+# moonaprs
+
+MoonBit 实现的 APRS / AX.25 业余无线电数据栈：从比特级的 AX.25 UI 帧、KISS 串口封装，
+到 TNC2 报文、APRS-IS 登录与过滤表达式，再到报文语义解析、航迹存储、Douglas-Peucker
+简化与 Web Mercator SVG 地图渲染。
+
+APRS（Automatic Packet Reporting System）是全球业余无线电爱好者使用的实时位置与遥测
+报文中继系统：车载台、手持台、气象站和网关通过 1200 bps 的 AX.25 分组无线电网和
+APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息。
+
+## 为什么是 MoonBit
+
+- 协议栈天然适合纯函数式、零平台依赖的核心库：同一份代码编译到 native / Wasm / JS。
+- 现有 MoonBit 生态中没有 APRS 或 AX.25 实现（`moon search aprs`、`moon search ax25`
+  均无结果），本项目填补这一空白。
+- 位级编码（地址字段左移、CRC-16/X.25、HDLC 位填充、KISS 转义）非常适合作为 MoonBit
+  系统编程能力的展示。
+
+## 功能
+
+- **AX.25**
+  - 呼号/SSID 解析与规范化
+  - 地址字段编解码（6 字符左移 + SSID/扩展位/命令位）
+  - UI 帧（control `0x03`、PID `0xF0`）编解码
+  - CRC-16/X.25（校验值 `"123456789"` → `0x906E`）
+  - HDLC 位填充/去填充
+  - KISS 封装、转义与增量流解码器
+  - TNC2 monitor 格式（`SRC>DST,PATH:info`）互转
+- **APRS-IS**
+  - passcode 算法（含 `N0CALL → 13023` 等回归向量）
+  - 登录行生成、只读模式
+  - 过滤表达式构造（范围、矩形、前缀、好友、类型）
+- **报文解析**
+  - 无时间戳/带时间戳的非压缩位置（含位置歧义）
+  - 压缩位置（base-91）
+  - 气象报文与位置附带气象（`_` 符号、`DDD/SSS` 前缀）
+  - 遥测（`T#`）
+  - 消息与 ACK、状态、对象、条目、查询、第三方报文
+- **航迹**
+  - 按呼号/对象/条目聚合
+  - 重复信标去重
+  - 大圆距离、初始方位、罗盘方位、Maidenhead 网格
+  - Douglas-Peucker 航迹简化
+- **地图**
+  - 经纬度 → Web Mercator 投影
+  - SVG 航迹折线、起终点标记、呼号标注、经纬网
+  - 常见 APRS 符号名称
+- **CLI**：`decode` / `decode-file` / `encode` / `passcode` / `login` / `kiss` /
+  `track` / `svg`
+- **浏览器演示**：粘贴 TNC2 报文，实时显示解码结果与地图
+
+## 快速开始
+
+```powershell
+moon check
+moon test --target wasm
+
+# 解码一条报文
+moon run cmd/main --target wasm -- decode "N0CALL-9>APRS,WIDE2-1:!4903.50N/07201.75W-Test"
+
+# APRS-IS 登录信息
+moon run cmd/main --target wasm -- passcode N0CALL
+moon run cmd/main --target wasm -- login N0CALL -1 "r/49.0/-72.0/100"
+
+# 编码 AX.25 UI 帧（打印 AX.25 与 KISS 十六进制）
+moon run cmd/main --target wasm -- encode N0CALL-9 APRS "WIDE2-1" "!4903.50N/07201.75W-Test"
+
+# 航迹统计与地图
+moon run cmd/main --target wasm -- track examples/aprs_sample.txt
+moon run cmd/main --target wasm -- svg examples/aprs_sample.txt map.svg 960 600
+```
+
+示例地图见 [examples/aprs_sample.svg](examples/aprs_sample.svg)。
+
+### 浏览器演示
+
+```powershell
+powershell -File web/build.ps1
+python -m http.server 8000 --directory .
+# 打开 http://localhost:8000/web/index.html
+```
+
+## 库结构
+
+```
+lib/ax25   AX.25 帧、地址、CRC、HDLC、KISS
+lib/aprs   TNC2、passcode、过滤器、位置/气象/遥测/消息/对象解析
+lib/track  航迹存储、距离方位、Douglas-Peucker 简化
+lib/svg    Web Mercator 投影、符号表、SVG 渲染
+cmd/main   命令行工具
+web        MoonBit→JS 浏览器演示
+```
+
+## 测试
+
+```powershell
+moon test --target wasm
+```
+
+测试覆盖 CRC 标准校验值、地址字段已知字节、帧/KISS 往返、TNC2 解析、压缩与
+非压缩位置、位置歧义、气象、遥测、消息与 ACK、对象/条目、APRS-IS passcode
+向量、过滤器、大圆距离、Douglas-Peucker 与 SVG 输出。
+
+## 已知限制
+
+- 暂不解析 Mic-E 编码的位置（常见于 Kenwood/ Yaesu 手持台）。
+- 航迹时间为原始 APRS 时间字符串，暂未做跨时区归一化。
+- APRS-IS 客户端（TCP 连接、过滤订阅、去重）不在当前版本范围内；本项目提供
+  登录串、passcode 与过滤器构造，可直接用于自建客户端。
+
+## 许可证
+
+MIT
