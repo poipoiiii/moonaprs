@@ -1,0 +1,216 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "poipoiiii/moonaprs/lib/aprs"
+
+import {
+  "poipoiiii/moonaprs/lib/ax25",
+}
+
+// Values
+pub fn all_digits(String) -> Bool
+
+pub fn chars_rest(String, Int32) -> String
+
+pub fn chars_slice(String, Int32, Int32) -> String
+
+pub fn drop_last(String) -> String
+
+pub fn filter_area(Double, Double, Double, Double) -> String
+
+pub fn filter_budlist(Array[String]) -> String
+
+pub fn filter_prefix(Array[String]) -> String
+
+pub fn filter_range(Double, Double, Int32) -> String
+
+pub fn filter_type(String) -> String
+
+pub fn format_fixed(Double, Int32) -> String
+
+pub fn is_valid_login_call(String) -> Bool
+
+pub fn join_strings(Array[String], String) -> String
+
+pub fn login_line(String, Int32, String) -> String
+
+pub fn parse_digits(String) -> Int32?
+
+pub fn parse_info(String) -> Result[AprsBody, String]
+
+pub fn parse_int_field(String) -> Int32?
+
+pub fn parse_item(String) -> Result[ItemReport, String]
+
+pub fn parse_message(String) -> Result[Message, String]
+
+pub fn parse_object(String) -> Result[ObjectReport, String]
+
+pub fn parse_position(String, Bool) -> Result[Position, String]
+
+pub fn parse_status(String) -> Status
+
+pub fn parse_telemetry(String) -> Result[Telemetry, String]
+
+pub fn parse_weather(String) -> Weather
+
+pub fn parse_weather_with_prefix(String) -> Weather
+
+pub fn passcode(String) -> Result[Int32, String]
+
+pub fn split_char(String, Char) -> Array[String]
+
+pub fn split_once(String, Char) -> (String, String)?
+
+pub fn weather_from_comment(String) -> Weather?
+
+pub fn weather_from_position(Position) -> Weather?
+
+// Errors
+
+// Types and methods
+pub(all) enum AprsBody {
+  Position(Position)
+  PositionWithWeather(Position, Weather)
+  Weather(Weather)
+  Telemetry(Telemetry)
+  Status(Status)
+  Message(Message)
+  Object(ObjectReport)
+  Item(ItemReport)
+  Query(String)
+  ThirdParty(String)
+  Unknown(String)
+}
+pub fn AprsBody::describe(Self) -> String
+
+pub struct AprsPacket {
+  header : Tnc2Packet
+  body : AprsBody
+}
+pub fn AprsPacket::body(Self) -> AprsBody
+pub fn AprsPacket::header(Self) -> Tnc2Packet
+pub fn AprsPacket::parse(String) -> Result[Self, String]
+pub fn AprsPacket::to_tnc2(Self) -> String
+
+pub struct FilterBuilder {
+  terms : Array[String]
+}
+pub fn FilterBuilder::budlist(Self, Array[String]) -> Self
+pub fn FilterBuilder::new() -> Self
+pub fn FilterBuilder::prefix(Self, Array[String]) -> Self
+pub fn FilterBuilder::range(Self, Double, Double, Int32) -> Self
+pub fn FilterBuilder::term(Self, String) -> Self
+pub fn FilterBuilder::to_string(Self) -> String
+
+pub struct ItemReport {
+  name : String
+  alive : Bool
+  position : Position
+}
+pub fn ItemReport::is_alive(Self) -> Bool
+pub fn ItemReport::item_name(Self) -> String
+pub fn ItemReport::position(Self) -> Position
+
+pub struct Message {
+  addressee : String
+  text : String
+  msg_id : String?
+  ack_id : String?
+}
+pub fn Message::acked_id(Self) -> String?
+pub fn Message::body(Self) -> String
+pub fn Message::id(Self) -> String?
+pub fn Message::is_ack(Self) -> Bool
+pub fn Message::to_call(Self) -> String
+
+pub struct ObjectReport {
+  name : String
+  alive : Bool
+  timestamp : String
+  position : Position
+}
+pub fn ObjectReport::is_alive(Self) -> Bool
+pub fn ObjectReport::object_name(Self) -> String
+pub fn ObjectReport::position(Self) -> Position
+pub fn ObjectReport::timestamp_text(Self) -> String
+
+pub struct Position {
+  lat : Double
+  lon : Double
+  symbol_table : Char
+  symbol_code : Char
+  comment : String
+  ambiguity : Int32
+  timestamp : String?
+  compressed : Bool
+}
+pub fn Position::ambiguity_digits(Self) -> Int32
+pub fn Position::comment_text(Self) -> String
+pub fn Position::is_compressed(Self) -> Bool
+pub fn Position::latitude(Self) -> Double
+pub fn Position::longitude(Self) -> Double
+pub fn Position::symbol(Self) -> Char
+pub fn Position::table(Self) -> Char
+pub fn Position::timestamp_text(Self) -> String?
+pub fn Position::to_uncompressed(Self) -> String
+
+pub struct Status {
+  text : String
+  timestamp : String?
+}
+pub fn Status::text_of(Self) -> String
+pub fn Status::timestamp_text(Self) -> String?
+
+pub struct Telemetry {
+  name : String
+  seq : Int32
+  analog : Array[Int32]
+  digital : String
+}
+pub fn Telemetry::analog_values(Self) -> Array[Int32]
+pub fn Telemetry::channel(Self) -> String
+pub fn Telemetry::digital_bits(Self) -> String
+pub fn Telemetry::sequence(Self) -> Int32
+pub fn Telemetry::to_string(Self) -> String
+
+pub struct Tnc2Packet {
+  src : @ax25.Callsign
+  dest : @ax25.Callsign
+  path : Array[@ax25.Ax25Address]
+  info : String
+}
+pub fn Tnc2Packet::destination(Self) -> @ax25.Callsign
+pub fn Tnc2Packet::info_field(Self) -> String
+pub fn Tnc2Packet::parse(String) -> Result[Self, String]
+pub fn Tnc2Packet::path(Self) -> Array[@ax25.Ax25Address]
+pub fn Tnc2Packet::source(Self) -> @ax25.Callsign
+pub fn Tnc2Packet::to_string(Self) -> String
+
+pub struct Weather {
+  timestamp : String?
+  wind_dir : Int32?
+  wind_speed : Int32?
+  gust : Int32?
+  temperature_f : Int32?
+  rain_last_hour : Int32?
+  rain_last_24h : Int32?
+  rain_since_midnight : Int32?
+  humidity : Int32?
+  pressure_tenths_hpa : Int32?
+  luminosity : Int32?
+}
+pub fn Weather::gust_mph(Self) -> Int32?
+pub fn Weather::humidity(Self) -> Int32?
+pub fn Weather::luminosity_value(Self) -> Int32?
+pub fn Weather::pressure(Self) -> Int32?
+pub fn Weather::rain_1h(Self) -> Int32?
+pub fn Weather::rain_24h(Self) -> Int32?
+pub fn Weather::rain_midnight(Self) -> Int32?
+pub fn Weather::summary(Self) -> String
+pub fn Weather::temperature(Self) -> Int32?
+pub fn Weather::timestamp_text(Self) -> String?
+pub fn Weather::wind_direction(Self) -> Int32?
+pub fn Weather::wind_speed_mph(Self) -> Int32?
+
+// Type aliases
+
+// Traits
