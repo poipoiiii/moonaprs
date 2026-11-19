@@ -1,0 +1,105 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "poipoiiii/moonaprs/lib/ax25"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn append_fcs(Array[Byte]) -> Array[Byte]
+
+pub fn bit_stuff(Array[Byte]) -> Stuffed
+
+pub fn bit_unstuff(Array[Byte], Int32) -> Array[Byte]?
+
+pub fn crc16_x25(Array[Byte]) -> Int32
+
+pub fn decode(Array[Byte]) -> Result[Ax25Frame, String]
+
+pub fn decode_unchecked(Array[Byte]) -> Result[Ax25Frame, String]
+
+pub fn kiss_decode(Array[Byte]) -> Result[Array[KissFrame], String]
+
+pub fn kiss_encode(Int32, Int32, Array[Byte]) -> Array[Byte]
+
+pub let kiss_fend : Byte
+
+pub let kiss_fesc : Byte
+
+pub let kiss_tfend : Byte
+
+pub let kiss_tfesc : Byte
+
+pub fn strip_fcs(Array[Byte]) -> Array[Byte]?
+
+// Errors
+
+// Types and methods
+pub struct Ax25Address {
+  callsign : Callsign
+  repeated : Bool
+} derive(Eq, @debug.Debug)
+pub fn Ax25Address::callsign_of(Self) -> Callsign
+pub fn Ax25Address::equal(Self, Self) -> Bool
+pub fn Ax25Address::is_repeated(Self) -> Bool
+pub fn Ax25Address::new(Callsign, Bool) -> Self
+pub fn Ax25Address::not_equal(Self, Self) -> Bool
+pub fn Ax25Address::to_repr(Self) -> @debug.Repr
+
+pub struct Ax25Frame {
+  dest : Callsign
+  src : Callsign
+  digipeaters : Array[Ax25Address]
+  control : Int32
+  pid : Int32?
+  info : Array[Byte]
+}
+pub fn Ax25Frame::control_field(Self) -> Int32
+pub fn Ax25Frame::dest_callsign(Self) -> Callsign
+pub fn Ax25Frame::encode(Self) -> Array[Byte]
+pub fn Ax25Frame::info_bytes(Self) -> Array[Byte]
+pub fn Ax25Frame::is_ui(Self) -> Bool
+pub fn Ax25Frame::path(Self) -> Array[Ax25Address]
+pub fn Ax25Frame::pid_field(Self) -> Int32?
+pub fn Ax25Frame::src_callsign(Self) -> Callsign
+pub fn Ax25Frame::to_tnc2(Self) -> String
+pub fn Ax25Frame::ui(Callsign, Callsign, Array[Callsign], Array[Byte]) -> Self
+
+pub struct Callsign {
+  call : String
+  ssid : Int32
+} derive(Eq, @debug.Debug)
+pub fn Callsign::equal(Self, Self) -> Bool
+pub fn Callsign::field_chars(Self) -> Array[Char]
+pub fn Callsign::from_field(Array[Byte]) -> Self?
+pub fn Callsign::new(String, Int32) -> Self
+pub fn Callsign::not_equal(Self, Self) -> Bool
+pub fn Callsign::parse(String) -> Self?
+pub fn Callsign::to_repr(Self) -> @debug.Repr
+pub fn Callsign::to_string(Self) -> String
+
+pub struct KissDecoder {
+  mut buffer : Array[Byte]
+  mut in_frame : Bool
+  mut escaped : Bool
+}
+pub fn KissDecoder::feed(Self, Array[Byte]) -> Array[KissFrame]
+pub fn KissDecoder::new() -> Self
+
+pub struct KissFrame {
+  port : Int32
+  command : Int32
+  payload : Array[Byte]
+}
+pub fn KissFrame::command_code(Self) -> Int32
+pub fn KissFrame::payload_bytes(Self) -> Array[Byte]
+pub fn KissFrame::port_number(Self) -> Int32
+
+pub struct Stuffed {
+  bytes : Array[Byte]
+  bit_len : Int32
+}
+
+// Type aliases
+
+// Traits
