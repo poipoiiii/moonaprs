@@ -1,0 +1,10 @@
+import {
+  "poipoiiii/moonaprs/lib/ax25",
+  "poipoiiii/moonaprs/lib/aprs",
+  "poipoiiii/moonaprs/lib/track",
+  "poipoiiii/moonaprs/lib/svg",
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+}
+
+pkgtype(kind: "executable")

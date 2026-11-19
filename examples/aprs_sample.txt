@@ -1,0 +1,20 @@
+# MoonAPRS sample packet log (TNC2 format)
+# Two beacons from a mobile station near Montreal
+N0CALL-9>APRS,WIDE2-1:!4903.50N/07201.75W-Test beacon
+N0CALL-9>APRS,WIDE2-1:!4904.10N/07202.30W-Test beacon 2
+N0CALL-9>APRS,WIDE2-1:!4905.00N/07203.10W-Test beacon 3
+# A timestamped position from another station
+K1ABC-7>APRS,WIDE1-1,WIDE2-1:@092345z4903.50N/07201.75W>Moving east
+# Positionless weather report
+WX1ABC>APRS:_10090556c220s004g005t077r000p000P000h50b10159
+# Weather station position (symbol '_')
+WX2ABC>APRS:!4903.50N/07201.75W_240/006g010t070h45b10120
+# Message and acknowledgement
+K1ABC-7>APRS::N0CALL   :Hello from the field{42
+N0CALL-9>APRS::K1ABC-7  :ack42
+# Status, object and item
+K1ABC-7>APRS:>Monitoring 146.520 MHz
+N0CALL-9>APRS:;PARADE   *092345z4903.50N/07201.75W>Parade route
+K1ABC-7>APRS:)AID!4902.00N/07200.00W>Aid station
+# Telemetry
+K1ABC-7>APRS:T#MIC,123,100,200,300,400,500,10101010
