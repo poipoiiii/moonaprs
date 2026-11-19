@@ -112,6 +112,80 @@ let palette : Array[String] = [
 ]
 
 ///|
+fn append_marker(
+  sb : StringBuilder,
+  x : Double,
+  y : Double,
+  color : String,
+  symbol : Char?,
+) -> Unit {
+  let code = match symbol {
+    Some(c) => c
+    None => '-'
+  }
+  let sx = @aprs.format_fixed(x, 1)
+  let sy = @aprs.format_fixed(y, 1)
+  match code {
+    '>' => {
+      sb.write_string("<polygon points=\"")
+      sb.write_string(@aprs.format_fixed(x, 1))
+      sb.write_string(",")
+      sb.write_string(@aprs.format_fixed(y - 6.0, 1))
+      sb.write_string(" ")
+      sb.write_string(@aprs.format_fixed(x - 5.5, 1))
+      sb.write_string(",")
+      sb.write_string(@aprs.format_fixed(y + 4.0, 1))
+      sb.write_string(" ")
+      sb.write_string(@aprs.format_fixed(x + 5.5, 1))
+      sb.write_string(",")
+      sb.write_string(@aprs.format_fixed(y + 4.0, 1))
+      sb.write_string("\" fill=\"")
+      sb.write_string(color)
+      sb.write_string("\"/>\n")
+    }
+    '_' | 'W' | 'w' => {
+      sb.write_string("<rect x=\"")
+      sb.write_string(@aprs.format_fixed(x - 4.5, 1))
+      sb.write_string("\" y=\"")
+      sb.write_string(@aprs.format_fixed(y - 4.5, 1))
+      sb.write_string("\" width=\"9\" height=\"9\" fill=\"")
+      sb.write_string(color)
+      sb.write_string("\"/>\n")
+    }
+    '#' => {
+      sb.write_string("<polygon points=\"")
+      sb.write_string(sx)
+      sb.write_string(",")
+      sb.write_string(@aprs.format_fixed(y - 6.0, 1))
+      sb.write_string(" ")
+      sb.write_string(@aprs.format_fixed(x + 6.0, 1))
+      sb.write_string(",")
+      sb.write_string(sy)
+      sb.write_string(" ")
+      sb.write_string(sx)
+      sb.write_string(",")
+      sb.write_string(@aprs.format_fixed(y + 6.0, 1))
+      sb.write_string(" ")
+      sb.write_string(@aprs.format_fixed(x - 6.0, 1))
+      sb.write_string(",")
+      sb.write_string(sy)
+      sb.write_string("\" fill=\"")
+      sb.write_string(color)
+      sb.write_string("\"/>\n")
+    }
+    _ => {
+      sb.write_string("<circle cx=\"")
+      sb.write_string(sx)
+      sb.write_string("\" cy=\"")
+      sb.write_string(sy)
+      sb.write_string("\" r=\"5\" fill=\"")
+      sb.write_string(color)
+      sb.write_string("\"/>\n")
+    }
+  }
+}
+
+///|
 /// Render the given tracks as an SVG map.
 ///
 /// The map uses Web Mercator projection, a light background, one coloured
@@ -240,13 +314,7 @@ pub fn render_tracks(
     sb.write_string("\" stroke-width=\"2\"/>\n")
     let last = points[points.length() - 1]
     let (lx, ly) = projector.project(last.latitude(), last.longitude())
-    sb.write_string("<circle cx=\"")
-    sb.write_string(@aprs.format_fixed(lx, 1))
-    sb.write_string("\" cy=\"")
-    sb.write_string(@aprs.format_fixed(ly, 1))
-    sb.write_string("\" r=\"5\" fill=\"")
-    sb.write_string(color)
-    sb.write_string("\"/>\n")
+    append_marker(sb, lx, ly, color, last.symbol_code())
     sb.write_string("<text x=\"")
     sb.write_string(@aprs.format_fixed(lx + 9.0, 1))
     sb.write_string("\" y=\"")
@@ -256,6 +324,35 @@ pub fn render_tracks(
     )
     sb.write_string(escape_xml(track.callsign()))
     sb.write_string("</text>\n")
+  }
+  // Scale bar: choose a 90 px bar and derive its length in kilometres.
+  let (sx0, _) = projector.project(min_lat, min_lon)
+  let (sx1, _) = projector.project(min_lat, min_lon + 0.01)
+  let px_per_step = sx1 - sx0
+  if px_per_step > 0.5 {
+    let bar_px = 90.0
+    let step = 0.01 * bar_px / px_per_step
+    let km = @track.distance_km(min_lat, min_lon, min_lat, min_lon + step)
+    let bar_x = 16.0
+    let bar_y = Double::from_int(height) - 16.0
+    sb.write_string("<line x1=\"")
+    sb.write_string(@aprs.format_fixed(bar_x, 1))
+    sb.write_string("\" y1=\"")
+    sb.write_string(@aprs.format_fixed(bar_y, 1))
+    sb.write_string("\" x2=\"")
+    sb.write_string(@aprs.format_fixed(bar_x + bar_px, 1))
+    sb.write_string("\" y2=\"")
+    sb.write_string(@aprs.format_fixed(bar_y, 1))
+    sb.write_string("\" stroke=\"#334155\" stroke-width=\"3\"/>\n")
+    sb.write_string("<text x=\"")
+    sb.write_string(@aprs.format_fixed(bar_x, 1))
+    sb.write_string("\" y=\"")
+    sb.write_string(@aprs.format_fixed(bar_y - 5.0, 1))
+    sb.write_string(
+      "\" font-family=\"ui-monospace, Menlo, Consolas, monospace\" font-size=\"11\" fill=\"#475569\">",
+    )
+    sb.write_string(@aprs.format_fixed(km, 1))
+    sb.write_string(" km</text>\n")
   }
   sb.write_string(
     "<text x=\"12\" y=\"22\" font-family=\"ui-sans-serif, system-ui, sans-serif\" font-size=\"14\" font-weight=\"600\" fill=\"#0f172a\">",
