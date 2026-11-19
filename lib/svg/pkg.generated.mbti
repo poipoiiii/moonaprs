@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "poipoiiii/moonaprs/lib/svg"
+
+import {
+  "poipoiiii/moonaprs/lib/track",
+}
+
+// Values
+pub fn lat_to_mercator_y(Double) -> Double
+
+pub fn lon_to_mercator_x(Double) -> Double
+
+pub fn render_tracks(Array[@track.Track], Int32, Int32, String) -> String
+
+pub fn symbol_name(Char) -> String
+
+// Errors
+
+// Types and methods
+pub struct Projector {
+  scale : Double
+  offset_x : Double
+  offset_y : Double
+}
+pub fn Projector::new(Double, Double, Double, Double, Int32, Int32, Double) -> Self
+pub fn Projector::project(Self, Double, Double) -> (Double, Double)
+
+// Type aliases
+
+// Traits
