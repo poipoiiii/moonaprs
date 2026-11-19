@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+
+- Mic-E 位置解码：纬度取自 AX.25 目的地址的 6 个字符，经度/速度/航向取自信息字段，
+  支持当前/旧定位标志、800/600 节速度段与 400° 航向段、符号码与状态文本。
+- `parse_info_with_dest`：同时接收信息字段与目的地址；`AprsPacket::parse` 自动传入
+  目的地址，Mic-E 报文可直接解码。
+- `MicE` 类型与 `AprsBody::MicE` 变体，CLI `decode` 与浏览器演示均可显示 Mic-E。
+- 航迹存储接受 Mic-E 位置，可参与地图渲染与 GPX / GeoJSON 导出。
+- `Callsign::base_call`：取不含 SSID 的呼号。
+- 5 个 Mic-E 单元测试（规范示例、南纬/东经与速度偏移、截断输入、缺少目的地址）。
+
+### Changed
+
+- 版本号升至 0.3.0（登录串与 CLI 版本同步）。
+- 95 个单元测试。
+
 ## 0.2.0
 
 ### Added

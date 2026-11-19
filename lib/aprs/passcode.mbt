@@ -55,7 +55,7 @@ pub fn login_line(callsign : String, code : Int32, filter : String) -> String {
   sb.write_string(callsign)
   sb.write_string(" pass ")
   sb.write_string(code.to_string())
-  sb.write_string(" vers MoonAPRS 0.2.0")
+  sb.write_string(" vers MoonAPRS 0.3.0")
   if filter.length() > 0 {
     sb.write_string(" filter ")
     sb.write_string(filter)
