@@ -331,6 +331,17 @@ pub fn TrackStore::ingest(self : TrackStore, packet : @aprs.AprsPacket) -> Bool 
       self.record(header.source().to_string(), p)
     @aprs.Object(o) => self.record(o.object_name(), o.position())
     @aprs.Item(i) => self.record(i.item_name(), i.position())
+    @aprs.MicE(m) =>
+      self.record_point(
+        header.source().to_string(),
+        TrackPoint::with_symbol(
+          m.latitude(),
+          m.longitude(),
+          None,
+          m.status_text(),
+          m.symbol(),
+        ),
+      )
     _ => false
   }
 }
@@ -341,13 +352,24 @@ fn TrackStore::record(
   key : String,
   position : @aprs.Position,
 ) -> Bool {
-  let point = TrackPoint::with_symbol(
-    position.latitude(),
-    position.longitude(),
-    position.timestamp_text(),
-    position.comment_text(),
-    position.symbol(),
+  self.record_point(
+    key,
+    TrackPoint::with_symbol(
+      position.latitude(),
+      position.longitude(),
+      position.timestamp_text(),
+      position.comment_text(),
+      position.symbol(),
+    ),
   )
+}
+
+///|
+fn TrackStore::record_point(
+  self : TrackStore,
+  key : String,
+  point : TrackPoint,
+) -> Bool {
   match self.find(key) {
     Some(track) => track.add(point)
     None => {
