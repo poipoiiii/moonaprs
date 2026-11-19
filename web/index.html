@@ -116,6 +116,12 @@
   }
   button:hover { filter: brightness(1.12); }
   button:active { transform: translateY(1px); }
+  button.ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+  }
+  button.ghost:hover { background: rgba(61,220,151,.08); }
   .hint { font-family: var(--mono); font-size: 11px; color: var(--muted); }
   .mapwrap { flex: 1; min-height: 0; padding: 12px 16px; display: flex; }
   #map { flex: 1; display: flex; min-height: 320px; }
@@ -166,6 +172,8 @@ K1ABC-7>APRS:)AID!4902.00N/07200.00W>Aid station
 K1ABC-7>APRS:T#MIC,123,100,200,300,400,500,10101010</textarea>
         <div class="actions">
           <button id="parse">Decode</button>
+          <button id="gpx" class="ghost">GPX</button>
+          <button id="geojson" class="ghost">GeoJSON</button>
           <span class="hint">Ctrl / Cmd + Enter</span>
         </div>
       </div>

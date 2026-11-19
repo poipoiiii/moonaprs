@@ -64,6 +64,10 @@ fn parse_all(text : String) -> Unit {
       Err(e) => report.write_string("error: " + e + "\n")
     }
   }
+  let mut total_km = 0.0
+  for station in store.all() {
+    total_km = total_km + station.length_km()
+  }
   report.write_string("\n")
   report.write_string(
     "decoded " +
@@ -72,13 +76,41 @@ fn parse_all(text : String) -> Unit {
     total.to_string() +
     " packets, " +
     store.size().to_string() +
-    " stations tracked",
+    " stations, " +
+    @aprs.format_fixed(total_km, 2) +
+    " km",
   )
   let svg = @svg.render_tracks(store.all(), 900, 540, "MoonAPRS track map")
   js_render(report.to_string(), svg)
 }
 
 ///|
+fn build_store(text : String) -> @track.TrackStore {
+  let store = @track.TrackStore::new()
+  for line in text.split("\n") {
+    let trimmed = line.trim().to_owned()
+    if trimmed.length() == 0 || trimmed.has_prefix("#") {
+      continue
+    }
+    match @aprs.AprsPacket::parse(trimmed) {
+      Ok(packet) => ignore(store.ingest(packet))
+      Err(_) => ()
+    }
+  }
+  store
+}
+
+///|
+fn export_gpx(text : String) -> Unit {
+  js_download("moonaprs.gpx", @track.store_to_gpx(build_store(text)))
+}
+
+///|
+fn export_geojson(text : String) -> Unit {
+  js_download("moonaprs.geojson", @track.store_to_geojson(build_store(text)))
+}
+
+///|
 fn main {
-  js_bind(parse_all)
+  js_bind(parse_all, export_gpx, export_geojson)
 }
