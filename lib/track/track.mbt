@@ -5,17 +5,36 @@ pub struct TrackPoint {
   lon : Double
   time : String?
   comment : String
+  symbol : Char?
 }
 
 ///|
-/// Build a track point.
+/// Build a track point without symbol information.
 pub fn TrackPoint::new(
   lat : Double,
   lon : Double,
   time : String?,
   comment : String,
 ) -> TrackPoint {
-  { lat, lon, time, comment, }
+  { lat, lon, time, comment, symbol: None }
+}
+
+///|
+/// Build a track point with an APRS symbol code.
+pub fn TrackPoint::with_symbol(
+  lat : Double,
+  lon : Double,
+  time : String?,
+  comment : String,
+  symbol : Char,
+) -> TrackPoint {
+  { lat, lon, time, comment, symbol: Some(symbol) }
+}
+
+///|
+/// The APRS symbol code, when the point came from a position packet.
+pub fn TrackPoint::symbol_code(self : TrackPoint) -> Char? {
+  self.symbol
 }
 
 ///|
@@ -322,11 +341,12 @@ fn TrackStore::record(
   key : String,
   position : @aprs.Position,
 ) -> Bool {
-  let point = TrackPoint::new(
+  let point = TrackPoint::with_symbol(
     position.latitude(),
     position.longitude(),
     position.timestamp_text(),
     position.comment_text(),
+    position.symbol(),
   )
   match self.find(key) {
     Some(track) => track.add(point)
