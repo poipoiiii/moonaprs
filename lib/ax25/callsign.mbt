@@ -57,6 +57,12 @@ pub fn Callsign::parse(raw : String) -> Callsign? {
 }
 
 ///|
+/// The base call without the SSID suffix.
+pub fn Callsign::base_call(self : Callsign) -> String {
+  self.call
+}
+
+///|
 /// `CALL` when the SSID is zero, otherwise `CALL-SSID`.
 pub fn Callsign::to_string(self : Callsign) -> String {
   if self.ssid == 0 {

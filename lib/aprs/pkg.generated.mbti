@@ -46,11 +46,15 @@ pub fn parse_digits(String) -> Int32?
 
 pub fn parse_info(String) -> Result[AprsBody, String]
 
+pub fn parse_info_with_dest(String, String) -> Result[AprsBody, String]
+
 pub fn parse_int_field(String) -> Int32?
 
 pub fn parse_item(String) -> Result[ItemReport, String]
 
 pub fn parse_message(String) -> Result[Message, String]
+
+pub fn parse_mice(String, String) -> Result[MicE, String]
 
 pub fn parse_object(String) -> Result[ObjectReport, String]
 
@@ -92,6 +96,7 @@ pub(all) enum AprsBody {
   Message(Message)
   Object(ObjectReport)
   Item(ItemReport)
+  MicE(MicE)
   Query(String)
   ThirdParty(String)
   Unknown(String)
@@ -179,6 +184,29 @@ pub(all) enum MessageKind {
   Nws
 }
 pub fn MessageKind::label(Self) -> String
+
+pub struct MicE {
+  lat : Double
+  lon : Double
+  speed_knots : Int32
+  course_deg : Int32
+  symbol_table : Char
+  symbol_code : Char
+  status : String
+  message_bits : Int32
+  current_fix : Bool
+  ambiguity : Int32
+}
+pub fn MicE::ambiguity_digits(Self) -> Int32
+pub fn MicE::course(Self) -> Int32
+pub fn MicE::has_current_fix(Self) -> Bool
+pub fn MicE::latitude(Self) -> Double
+pub fn MicE::longitude(Self) -> Double
+pub fn MicE::message_code(Self) -> Int32
+pub fn MicE::speed_knots(Self) -> Int32
+pub fn MicE::status_text(Self) -> String
+pub fn MicE::symbol(Self) -> Char
+pub fn MicE::table(Self) -> Char
 
 pub struct ObjectReport {
   name : String

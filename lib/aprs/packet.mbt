@@ -9,6 +9,7 @@ pub(all) enum AprsBody {
   Message(Message)
   Object(ObjectReport)
   Item(ItemReport)
+  MicE(MicE)
   Query(String)
   ThirdParty(String)
   Unknown(String)
@@ -37,12 +38,31 @@ pub fn AprsPacket::body(self : AprsPacket) -> AprsBody {
 /// Parse an information field, with the APRS data type identifier still
 /// present.
 pub fn parse_info(info : String) -> Result[AprsBody, String] {
+  parse_info_with_dest(info, "")
+}
+
+///|
+/// Parse an information field using the AX.25 destination address, which is
+/// required to decode Mic-E latitude.
+pub fn parse_info_with_dest(
+  info : String,
+  dest : String,
+) -> Result[AprsBody, String] {
   let cs = info.to_array()
   if cs.length() == 0 {
     return Err("empty information field")
   }
   let kind = cs[0]
   match kind {
+    '`' | '\'' =>
+      if dest.length() == 0 {
+        Err("Mic-E packet requires the AX.25 destination address")
+      } else {
+        match parse_mice(dest, info) {
+          Ok(m) => Ok(MicE(m))
+          Err(e) => Err(e)
+        }
+      }
     '!' => position_body(chars_rest(info, 1), false)
     '=' => position_body(chars_rest(info, 1), false)
     '/' => position_body(chars_rest(info, 1), true)
@@ -102,7 +122,11 @@ pub fn AprsPacket::parse(line : String) -> Result[AprsPacket, String] {
   match Tnc2Packet::parse(line) {
     Err(e) => Err(e)
     Ok(header) =>
-      match parse_info(header.info_field()) {
+      match
+        parse_info_with_dest(
+          header.info_field(),
+          header.destination().base_call(),
+        ) {
         Ok(body) => Ok({ header, body, })
         Err(e) => Err(e)
       }
@@ -144,6 +168,16 @@ pub fn AprsBody::describe(self : AprsBody) -> String {
     Object(o) =>
       "object " + o.object_name() + " " + o.position().to_uncompressed()
     Item(i) => "item " + i.item_name() + " " + i.position().to_uncompressed()
+    MicE(m) =>
+      "mic-e position " +
+      format_fixed(m.latitude(), 4) +
+      "," +
+      format_fixed(m.longitude(), 4) +
+      " " +
+      m.speed_knots().to_string() +
+      "kn " +
+      m.course().to_string() +
+      "°"
     Query(q) => "query " + q
     ThirdParty(inner) => "third-party " + inner
     Unknown(text) => "unknown " + text
