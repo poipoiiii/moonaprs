@@ -1,0 +1,8 @@
+_build/
+target/
+.mooncakes/
+.prebuild/
+.moon-lock
+*.swp
+.DS_Store
+Thumbs.db

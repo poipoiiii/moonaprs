@@ -1,0 +1,61 @@
+name: Check and Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: install-ubuntu
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: install-windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: post install
+        run: |
+          moon version --all
+          moon update
+
+      - name: moon check native
+        run: moon check --target native --deny-warn
+
+      - name: moon check wasm
+        run: moon check --target wasm --deny-warn
+
+      - name: moon check js
+        run: moon check --target js --deny-warn
+
+      - name: moon test
+        run: moon test --target wasm --deny-warn
+
+      - name: smoke test
+        run: |
+          moon run cmd/main --target wasm -- passcode N0CALL
+          moon run cmd/main --target wasm -- decode "N0CALL-9>APRS,WIDE2-1:!4903.50N/07201.75W-Test"
+          moon run cmd/main --target wasm -- track examples/aprs_sample.txt
+
+      - name: lint
+        run: |
+          moon fmt && git diff --exit-code
+          moon info && git diff --exit-code
