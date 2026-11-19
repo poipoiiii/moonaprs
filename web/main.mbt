@@ -29,6 +29,19 @@ fn summarize(packet : @aprs.AprsPacket) -> String {
       sb.write_string("object " + o.object_name() + "  " + latlon(o.position()))
     @aprs.Item(i) =>
       sb.write_string("item " + i.item_name() + "  " + latlon(i.position()))
+    @aprs.MicE(m) =>
+      sb.write_string(
+        "mic-e position " +
+        @aprs.format_fixed(m.latitude(), 4) +
+        "," +
+        @aprs.format_fixed(m.longitude(), 4) +
+        "  " +
+        m.speed_knots().to_string() +
+        "kn " +
+        m.course().to_string() +
+        "°  " +
+        m.status_text(),
+      )
     @aprs.Query(q) => sb.write_string("query: " + q)
     @aprs.ThirdParty(inner) => sb.write_string("third-party: " + inner)
     @aprs.Unknown(text) => sb.write_string("unhandled: " + text)

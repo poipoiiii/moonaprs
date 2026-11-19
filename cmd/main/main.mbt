@@ -3,7 +3,7 @@
 
 ///|
 fn usage() -> Unit {
-  println("moonaprs 0.2.0 — APRS / AX.25 toolkit")
+  println("moonaprs 0.3.0 — APRS / AX.25 toolkit")
   println("usage:")
   println(
     "  moonaprs decode <tnc2>            decode one packet to JSON-ish text",
@@ -182,6 +182,31 @@ fn describe(packet : @aprs.AprsPacket) -> Unit {
     @aprs.Item(i) => {
       println("item " + i.item_name())
       describe_position("  position", i.position())
+    }
+    @aprs.MicE(m) => {
+      println(
+        "mic-e position: lat=" +
+        @aprs.format_fixed(m.latitude(), 5) +
+        " lon=" +
+        @aprs.format_fixed(m.longitude(), 5) +
+        " speed=" +
+        m.speed_knots().to_string() +
+        "kn course=" +
+        m.course().to_string() +
+        "°",
+      )
+      println(
+        "  symbol=" +
+        m.table().to_string() +
+        m.symbol().to_string() +
+        " (" +
+        @svg.symbol_name(m.symbol()) +
+        ") fix=" +
+        (if m.has_current_fix() { "current" } else { "old" }),
+      )
+      if m.status_text().length() > 0 {
+        println("  status: " + m.status_text())
+      }
     }
     @aprs.Query(q) => println("query: " + q)
     @aprs.ThirdParty(inner) => println("third-party payload: " + inner)
