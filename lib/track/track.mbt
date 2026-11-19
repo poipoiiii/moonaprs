@@ -16,7 +16,7 @@ pub fn TrackPoint::new(
   time : String?,
   comment : String,
 ) -> TrackPoint {
-  { lat, lon, time, comment, symbol: None }
+  { lat, lon, time, comment, symbol: None, }
 }
 
 ///|
@@ -28,7 +28,7 @@ pub fn TrackPoint::with_symbol(
   comment : String,
   symbol : Char,
 ) -> TrackPoint {
-  { lat, lon, time, comment, symbol: Some(symbol) }
+  { lat, lon, time, comment, symbol: Some(symbol), }
 }
 
 ///|

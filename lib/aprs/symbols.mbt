@@ -145,7 +145,7 @@ pub fn symbol_info(table : Char, code : Char) -> SymbolInfo {
   } else {
     alternate_name(code)
   }
-  { table, code, name, category }
+  { table, code, name, category, }
 }
 
 ///|

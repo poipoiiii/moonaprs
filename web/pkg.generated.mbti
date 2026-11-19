@@ -2,7 +2,9 @@
 package "poipoiiii/moonaprs/web"
 
 // Values
-pub fn js_bind((String) -> Unit) -> Unit
+pub fn js_bind((String) -> Unit, (String) -> Unit, (String) -> Unit) -> Unit
+
+pub fn js_download(String, String) -> Unit
 
 pub fn js_render(String, String) -> Unit
 

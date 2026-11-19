@@ -29,11 +29,11 @@ pub fn TimestampKind::label(self : TimestampKind) -> String {
 /// that are absent are zero and the original text is kept in `raw`.
 pub struct Timestamp {
   kind : TimestampKind
-  month : Int
-  day : Int
-  hour : Int
-  minute : Int
-  second : Int
+  month : Int32
+  day : Int32
+  hour : Int32
+  minute : Int32
+  second : Int32
   raw : String
 }
 
@@ -45,31 +45,31 @@ pub fn Timestamp::kind_of(self : Timestamp) -> TimestampKind {
 
 ///|
 /// Month (1-12), or 0 when the format has no month.
-pub fn Timestamp::month_of(self : Timestamp) -> Int {
+pub fn Timestamp::month_of(self : Timestamp) -> Int32 {
   self.month
 }
 
 ///|
 /// Day of month (1-31), or 0 when the format has no day.
-pub fn Timestamp::day_of(self : Timestamp) -> Int {
+pub fn Timestamp::day_of(self : Timestamp) -> Int32 {
   self.day
 }
 
 ///|
 /// Hour (0-23).
-pub fn Timestamp::hour_of(self : Timestamp) -> Int {
+pub fn Timestamp::hour_of(self : Timestamp) -> Int32 {
   self.hour
 }
 
 ///|
 /// Minute (0-59).
-pub fn Timestamp::minute_of(self : Timestamp) -> Int {
+pub fn Timestamp::minute_of(self : Timestamp) -> Int32 {
   self.minute
 }
 
 ///|
 /// Second (0-59), or 0 when the format has no seconds.
-pub fn Timestamp::second_of(self : Timestamp) -> Int {
+pub fn Timestamp::second_of(self : Timestamp) -> Int32 {
   self.second
 }
 
@@ -81,18 +81,18 @@ pub fn Timestamp::raw_text(self : Timestamp) -> String {
 
 ///|
 /// Minutes since midnight.
-pub fn Timestamp::minutes_of_day(self : Timestamp) -> Int {
+pub fn Timestamp::minutes_of_day(self : Timestamp) -> Int32 {
   self.hour * 60 + self.minute
 }
 
 ///|
 /// Seconds since midnight.
-pub fn Timestamp::seconds_of_day(self : Timestamp) -> Int {
+pub fn Timestamp::seconds_of_day(self : Timestamp) -> Int32 {
   self.hour * 3600 + self.minute * 60 + self.second
 }
 
 ///|
-fn digits_value(cs : Array[Char], start : Int, count : Int) -> Int? {
+fn digits_value(cs : Array[Char], start : Int32, count : Int32) -> Int32? {
   if start + count > cs.length() {
     return None
   }
@@ -108,12 +108,17 @@ fn digits_value(cs : Array[Char], start : Int, count : Int) -> Int? {
 }
 
 ///|
-fn valid_clock(hour : Int, minute : Int, second : Int) -> Bool {
-  hour >= 0 && hour < 24 && minute >= 0 && minute < 60 && second >= 0 && second < 60
+fn valid_clock(hour : Int32, minute : Int32, second : Int32) -> Bool {
+  hour >= 0 &&
+  hour < 24 &&
+  minute >= 0 &&
+  minute < 60 &&
+  second >= 0 &&
+  second < 60
 }
 
 ///|
-fn valid_date(month : Int, day : Int) -> Bool {
+fn valid_date(month : Int32, day : Int32) -> Bool {
   month >= 1 && month <= 12 && day >= 1 && day <= 31
 }
 
@@ -181,7 +186,11 @@ pub fn Timestamp::parse(text : String) -> Result[Timestamp, String] {
       return Err("hour/minute out of range")
     }
     Ok({
-      kind: if suffix == 'z' { DayZulu } else { DayLocal },
+      kind: if suffix == 'z' {
+        DayZulu
+      } else {
+        DayLocal
+      },
       month: 0,
       day,
       hour,
@@ -205,15 +214,7 @@ pub fn Timestamp::parse(text : String) -> Result[Timestamp, String] {
     if !valid_clock(hour, minute, second) {
       return Err("time out of range")
     }
-    Ok({
-      kind: HourMinuteSecond,
-      month: 0,
-      day: 0,
-      hour,
-      minute,
-      second,
-      raw,
-    })
+    Ok({ kind: HourMinuteSecond, month: 0, day: 0, hour, minute, second, raw, })
   } else {
     Err("unknown timestamp suffix")
   }
@@ -228,7 +229,7 @@ pub fn Timestamp::to_string(self : Timestamp) -> String {
 ///|
 /// Difference in minutes from `self` to `other`, wrapping at midnight when both
 /// timestamps use the same day-based format.
-pub fn Timestamp::minutes_until(self : Timestamp, other : Timestamp) -> Int {
+pub fn Timestamp::minutes_until(self : Timestamp, other : Timestamp) -> Int32 {
   let a = self.minutes_of_day() * 60 + self.second
   let b = other.minutes_of_day() * 60 + other.second
   let mut delta = b - a

@@ -18,18 +18,30 @@ pub(all) enum IsEvent {
 /// protocol state (login line, keepalive, packet parsing and counters).
 pub struct IsSession {
   callsign : String
-  passcode : Int
+  passcode : Int32
   filter : String
   mut logged_in : Bool
   mut server : String
-  mut received : Int
-  mut comments : Int
+  mut received : Int32
+  mut comments : Int32
 }
 
 ///|
 /// Create a session. Use passcode `-1` for a receive-only connection.
-pub fn IsSession::new(callsign : String, passcode : Int, filter : String) -> IsSession {
-  { callsign, passcode, filter, logged_in: false, server: "", received: 0, comments: 0 }
+pub fn IsSession::new(
+  callsign : String,
+  passcode : Int32,
+  filter : String,
+) -> IsSession {
+  {
+    callsign,
+    passcode,
+    filter,
+    logged_in: false,
+    server: "",
+    received: 0,
+    comments: 0,
+  }
 }
 
 ///|
@@ -59,13 +71,13 @@ pub fn IsSession::server_name(self : IsSession) -> String {
 
 ///|
 /// Number of valid packets received.
-pub fn IsSession::packet_count(self : IsSession) -> Int {
+pub fn IsSession::packet_count(self : IsSession) -> Int32 {
   self.received
 }
 
 ///|
 /// Number of comment lines received.
-pub fn IsSession::comment_count(self : IsSession) -> Int {
+pub fn IsSession::comment_count(self : IsSession) -> Int32 {
   self.comments
 }
 

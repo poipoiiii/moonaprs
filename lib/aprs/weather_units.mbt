@@ -30,7 +30,7 @@ pub fn Weather::gust_kmh(self : Weather) -> Double? {
 }
 
 ///|
-fn hundredths_inch_to_mm(value : Int) -> Double {
+fn hundredths_inch_to_mm(value : Int32) -> Double {
   Double::from_int(value) * 0.254
 }
 

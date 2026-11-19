@@ -34,7 +34,10 @@ pub fn Position::new(
 
 ///|
 /// Return a copy of the position with the given timestamp.
-pub fn Position::with_timestamp(self : Position, timestamp : String) -> Position {
+pub fn Position::with_timestamp(
+  self : Position,
+  timestamp : String,
+) -> Position {
   {
     lat: self.lat,
     lon: self.lon,

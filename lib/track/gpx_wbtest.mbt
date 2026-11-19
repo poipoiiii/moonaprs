@@ -1,7 +1,9 @@
 ///|
 fn gpx_sample_track() -> Track {
   let track = Track::new("N0CALL-9")
-  ignore(track.add(TrackPoint::new(49.058333, -72.029167, Some("092300z"), "a<b&c")))
+  ignore(
+    track.add(TrackPoint::new(49.058333, -72.029167, Some("092300z"), "a<b&c")),
+  )
   ignore(track.add(TrackPoint::new(49.06, -72.03, Some("092310z"), "")))
   track
 }

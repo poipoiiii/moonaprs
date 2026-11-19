@@ -29,11 +29,25 @@ test "dedupe window distinguishes payloads" {
 ///|
 test "dedupe window evicts old signatures" {
   let window = DedupeWindow::new(2)
-  ignore(window.is_new(AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-1").unwrap()))
-  ignore(window.is_new(AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-2").unwrap()))
-  ignore(window.is_new(AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-3").unwrap()))
+  ignore(
+    window.is_new(
+      AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-1").unwrap(),
+    ),
+  )
+  ignore(
+    window.is_new(
+      AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-2").unwrap(),
+    ),
+  )
+  ignore(
+    window.is_new(
+      AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-3").unwrap(),
+    ),
+  )
   assert_eq(
-    window.is_new(AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-1").unwrap()),
+    window.is_new(
+      AprsPacket::parse("A1AAA>APRS:!4903.50N/07201.75W-1").unwrap(),
+    ),
     true,
   )
   assert_eq(window.size(), 2)

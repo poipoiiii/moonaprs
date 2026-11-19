@@ -18,6 +18,14 @@ pub fn maidenhead(Double, Double) -> String
 
 pub fn simplify(Array[TrackPoint], Double) -> Array[TrackPoint]
 
+pub fn store_to_geojson(TrackStore) -> String
+
+pub fn store_to_gpx(TrackStore) -> String
+
+pub fn to_geojson(Track) -> String
+
+pub fn to_gpx(Track) -> String
+
 // Errors
 
 // Types and methods
@@ -33,28 +41,44 @@ pub fn BoundingBox::min_latitude(Self) -> Double
 pub fn BoundingBox::min_longitude(Self) -> Double
 pub fn BoundingBox::padded(Self, Double) -> Self
 
+pub struct SpeedSample {
+  from_index : Int32
+  to_index : Int32
+  speed_kmh : Double
+  course_deg : Double
+}
+pub fn SpeedSample::course(Self) -> Double
+pub fn SpeedSample::from_point(Self) -> Int32
+pub fn SpeedSample::speed_kmh(Self) -> Double
+pub fn SpeedSample::to_point(Self) -> Int32
+
 pub struct Track {
   callsign : String
   points : Array[TrackPoint]
 }
 pub fn Track::add(Self, TrackPoint) -> Bool
+pub fn Track::average_speed_kmh(Self) -> Double
 pub fn Track::bounds(Self) -> BoundingBox?
 pub fn Track::callsign(Self) -> String
 pub fn Track::length_km(Self) -> Double
 pub fn Track::new(String) -> Self
 pub fn Track::points(Self) -> Array[TrackPoint]
+pub fn Track::speeds(Self) -> Array[SpeedSample]
 
 pub struct TrackPoint {
   lat : Double
   lon : Double
   time : String?
   comment : String
+  symbol : Char?
 }
 pub fn TrackPoint::comment_text(Self) -> String
 pub fn TrackPoint::latitude(Self) -> Double
 pub fn TrackPoint::longitude(Self) -> Double
 pub fn TrackPoint::new(Double, Double, String?, String) -> Self
+pub fn TrackPoint::symbol_code(Self) -> Char?
 pub fn TrackPoint::timestamp_text(Self) -> String?
+pub fn TrackPoint::with_symbol(Double, Double, String?, String, Char) -> Self
 
 pub struct TrackStore {
   tracks : Array[Track]

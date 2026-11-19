@@ -15,19 +15,19 @@ pub fn packet_signature(packet : AprsPacket) -> String {
 ///|
 /// A fixed-size first-in-first-out window of recently seen packet signatures.
 pub struct DedupeWindow {
-  capacity : Int
+  capacity : Int32
   mut keys : Array[String]
 }
 
 ///|
 /// Create a window that remembers the last `capacity` signatures.
-pub fn DedupeWindow::new(capacity : Int) -> DedupeWindow {
-  { capacity: if capacity < 1 { 1 } else { capacity }, keys: [] }
+pub fn DedupeWindow::new(capacity : Int32) -> DedupeWindow {
+  { capacity: if capacity < 1 { 1 } else { capacity }, keys: [], }
 }
 
 ///|
 /// Number of signatures currently held.
-pub fn DedupeWindow::size(self : DedupeWindow) -> Int {
+pub fn DedupeWindow::size(self : DedupeWindow) -> Int32 {
   self.keys.length()
 }
 
@@ -66,7 +66,10 @@ pub fn DedupeWindow::is_new(self : DedupeWindow, packet : AprsPacket) -> Bool {
 
 ///|
 /// Parse a TNC2 line and test it against the window.
-pub fn DedupeWindow::is_new_line(self : DedupeWindow, line : String) -> Result[Bool, String] {
+pub fn DedupeWindow::is_new_line(
+  self : DedupeWindow,
+  line : String,
+) -> Result[Bool, String] {
   match AprsPacket::parse(line) {
     Ok(packet) => Ok(self.is_new(packet))
     Err(e) => Err(e)

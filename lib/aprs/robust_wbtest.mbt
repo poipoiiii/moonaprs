@@ -23,12 +23,11 @@ test "every prefix of a valid packet is handled without panicking" {
 ///|
 test "garbage input returns errors or unknown payloads" {
   let samples : Array[String] = [
-    "", ":", ">", "!>", "@@@@@@@", "N0CALL>", "N0CALL>APRS",
-    "N0CALL>APRS:", "N0CALL>APRS:!", "N0CALL>APRS:@", "N0CALL>APRS:;",
-    "N0CALL>APRS:)", "N0CALL>APRS::", "N0CALL>APRS:_", "N0CALL>APRS:T#",
-    "N0CALL-99>APRS:!4903.50N/07201.75W-", ">APRS:!4903.50N/07201.75W-",
-    "N0CALL>APRS:!4903.50N/07201.75W-", "N0CALL>APRS:!9999.99N/99999.99E-",
-    "N0CALL>APRS:!/5L!!<*e", "N0CALL>APRS:;SHORT", "N0CALL>APRS:)X",
+    "", ":", ">", "!>", "@@@@@@@", "N0CALL>", "N0CALL>APRS", "N0CALL>APRS:", "N0CALL>APRS:!",
+    "N0CALL>APRS:@", "N0CALL>APRS:;", "N0CALL>APRS:)", "N0CALL>APRS::", "N0CALL>APRS:_",
+    "N0CALL>APRS:T#", "N0CALL-99>APRS:!4903.50N/07201.75W-", ">APRS:!4903.50N/07201.75W-",
+    "N0CALL>APRS:!4903.50N/07201.75W-", "N0CALL>APRS:!9999.99N/99999.99E-", "N0CALL>APRS:!/5L!!<*e",
+    "N0CALL>APRS:;SHORT", "N0CALL>APRS:)X",
   ]
   for sample in samples {
     ignore(try_parse(sample))

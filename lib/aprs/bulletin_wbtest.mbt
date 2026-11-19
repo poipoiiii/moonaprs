@@ -6,10 +6,7 @@ test "bulletin classification and subject" {
       assert_eq(classify_message(m).label(), "bulletin-1")
       assert_eq(bulletin_subject(m).unwrap(), "ARES")
       assert_eq(bulletin_body(m).unwrap(), "Net tonight at 8pm")
-      assert_eq(
-        describe_message(m),
-        "bulletin 1 [ARES] Net tonight at 8pm",
-      )
+      assert_eq(describe_message(m), "bulletin 1 [ARES] Net tonight at 8pm")
     }
     _ => abort("expected a message")
   }

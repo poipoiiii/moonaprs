@@ -3,7 +3,7 @@ test "session login line uses the filter" {
   let session = IsSession::new("N0CALL", 13023, "r/49.0/-72.0/100")
   assert_eq(
     session.login_line(),
-    "user N0CALL pass 13023 vers MoonAPRS 0.1.0 filter r/49.0/-72.0/100",
+    "user N0CALL pass 13023 vers MoonAPRS 0.2.0 filter r/49.0/-72.0/100",
   )
   assert_eq(session.is_logged_in(), false)
 }
@@ -11,13 +11,19 @@ test "session login line uses the filter" {
 ///|
 test "session marks login verified" {
   let session = IsSession::new("N0CALL", -1, "")
-  let event = session.handle_line("# aprsc 2.1.4 logresp N0CALL unverified, server T2ONTARIO")
+  let event = session.handle_line(
+    "# aprsc 2.1.4 logresp N0CALL unverified, server T2ONTARIO",
+  )
   match event {
     Comment(text) => assert_true(text.contains("logresp"))
     _ => abort("expected a comment")
   }
   assert_eq(session.is_logged_in(), false)
-  ignore(session.handle_line("# aprsc 2.1.4 logresp N0CALL verified, server T2ONTARIO"))
+  ignore(
+    session.handle_line(
+      "# aprsc 2.1.4 logresp N0CALL verified, server T2ONTARIO",
+    ),
+  )
   assert_eq(session.is_logged_in(), true)
   assert_true(session.server_name().contains("aprsc"))
 }

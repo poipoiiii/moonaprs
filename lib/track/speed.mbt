@@ -1,21 +1,21 @@
 ///|
 /// Speed and course between two consecutive track points.
 pub struct SpeedSample {
-  from_index : Int
-  to_index : Int
+  from_index : Int32
+  to_index : Int32
   speed_kmh : Double
   course_deg : Double
 }
 
 ///|
 /// Index of the earlier point.
-pub fn SpeedSample::from_point(self : SpeedSample) -> Int {
+pub fn SpeedSample::from_point(self : SpeedSample) -> Int32 {
   self.from_index
 }
 
 ///|
 /// Index of the later point.
-pub fn SpeedSample::to_point(self : SpeedSample) -> Int {
+pub fn SpeedSample::to_point(self : SpeedSample) -> Int32 {
   self.to_index
 }
 

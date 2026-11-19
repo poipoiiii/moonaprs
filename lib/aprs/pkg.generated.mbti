@@ -8,9 +8,17 @@ import {
 // Values
 pub fn all_digits(String) -> Bool
 
+pub fn bulletin_body(Message) -> String?
+
+pub fn bulletin_subject(Message) -> String?
+
 pub fn chars_rest(String, Int32) -> String
 
 pub fn chars_slice(String, Int32, Int32) -> String
+
+pub fn classify_message(Message) -> MessageKind
+
+pub fn describe_message(Message) -> String
 
 pub fn drop_last(String) -> String
 
@@ -31,6 +39,8 @@ pub fn is_valid_login_call(String) -> Bool
 pub fn join_strings(Array[String], String) -> String
 
 pub fn login_line(String, Int32, String) -> String
+
+pub fn packet_signature(AprsPacket) -> String
 
 pub fn parse_digits(String) -> Int32?
 
@@ -59,6 +69,12 @@ pub fn passcode(String) -> Result[Int32, String]
 pub fn split_char(String, Char) -> Array[String]
 
 pub fn split_once(String, Char) -> (String, String)?
+
+pub fn symbol_category_for(Char, Char) -> String
+
+pub fn symbol_info(Char, Char) -> SymbolInfo
+
+pub fn symbol_name_for(Char, Char) -> String
 
 pub fn weather_from_comment(String) -> Weather?
 
@@ -91,6 +107,15 @@ pub fn AprsPacket::header(Self) -> Tnc2Packet
 pub fn AprsPacket::parse(String) -> Result[Self, String]
 pub fn AprsPacket::to_tnc2(Self) -> String
 
+pub struct DedupeWindow {
+  capacity : Int32
+  mut keys : Array[String]
+}
+pub fn DedupeWindow::is_new(Self, AprsPacket) -> Bool
+pub fn DedupeWindow::is_new_line(Self, String) -> Result[Bool, String]
+pub fn DedupeWindow::new(Int32) -> Self
+pub fn DedupeWindow::size(Self) -> Int32
+
 pub struct FilterBuilder {
   terms : Array[String]
 }
@@ -100,6 +125,32 @@ pub fn FilterBuilder::prefix(Self, Array[String]) -> Self
 pub fn FilterBuilder::range(Self, Double, Double, Int32) -> Self
 pub fn FilterBuilder::term(Self, String) -> Self
 pub fn FilterBuilder::to_string(Self) -> String
+
+pub(all) enum IsEvent {
+  Comment(String)
+  Packet(AprsPacket)
+  Malformed(String)
+  Ignored
+}
+pub fn IsEvent::label(Self) -> String
+
+pub struct IsSession {
+  callsign : String
+  passcode : Int32
+  filter : String
+  mut logged_in : Bool
+  mut server : String
+  mut received : Int32
+  mut comments : Int32
+}
+pub fn IsSession::comment_count(Self) -> Int32
+pub fn IsSession::handle_line(Self, String) -> IsEvent
+pub fn IsSession::is_logged_in(Self) -> Bool
+pub fn IsSession::keepalive(Self) -> String
+pub fn IsSession::login_line(Self) -> String
+pub fn IsSession::new(String, Int32, String) -> Self
+pub fn IsSession::packet_count(Self) -> Int32
+pub fn IsSession::server_name(Self) -> String
 
 pub struct ItemReport {
   name : String
@@ -121,6 +172,13 @@ pub fn Message::body(Self) -> String
 pub fn Message::id(Self) -> String?
 pub fn Message::is_ack(Self) -> Bool
 pub fn Message::to_call(Self) -> String
+
+pub(all) enum MessageKind {
+  Personal
+  Bulletin(Char)
+  Nws
+}
+pub fn MessageKind::label(Self) -> String
 
 pub struct ObjectReport {
   name : String
@@ -148,10 +206,13 @@ pub fn Position::comment_text(Self) -> String
 pub fn Position::is_compressed(Self) -> Bool
 pub fn Position::latitude(Self) -> Double
 pub fn Position::longitude(Self) -> Double
+pub fn Position::new(Double, Double, Char, Char, String) -> Self
 pub fn Position::symbol(Self) -> Char
 pub fn Position::table(Self) -> Char
 pub fn Position::timestamp_text(Self) -> String?
+pub fn Position::to_aprs(Self) -> String
 pub fn Position::to_uncompressed(Self) -> String
+pub fn Position::with_timestamp(Self, String) -> Self
 
 pub struct Status {
   text : String
@@ -159,6 +220,17 @@ pub struct Status {
 }
 pub fn Status::text_of(Self) -> String
 pub fn Status::timestamp_text(Self) -> String?
+
+pub struct SymbolInfo {
+  table : Char
+  code : Char
+  name : String
+  category : String
+}
+pub fn SymbolInfo::category_of(Self) -> String
+pub fn SymbolInfo::code_char(Self) -> Char
+pub fn SymbolInfo::name_of(Self) -> String
+pub fn SymbolInfo::table_char(Self) -> Char
 
 pub struct Telemetry {
   name : String
@@ -171,6 +243,36 @@ pub fn Telemetry::channel(Self) -> String
 pub fn Telemetry::digital_bits(Self) -> String
 pub fn Telemetry::sequence(Self) -> Int32
 pub fn Telemetry::to_string(Self) -> String
+
+pub struct Timestamp {
+  kind : TimestampKind
+  month : Int32
+  day : Int32
+  hour : Int32
+  minute : Int32
+  second : Int32
+  raw : String
+}
+pub fn Timestamp::day_of(Self) -> Int32
+pub fn Timestamp::hour_of(Self) -> Int32
+pub fn Timestamp::kind_of(Self) -> TimestampKind
+pub fn Timestamp::minute_of(Self) -> Int32
+pub fn Timestamp::minutes_of_day(Self) -> Int32
+pub fn Timestamp::minutes_until(Self, Self) -> Int32
+pub fn Timestamp::month_of(Self) -> Int32
+pub fn Timestamp::parse(String) -> Result[Self, String]
+pub fn Timestamp::raw_text(Self) -> String
+pub fn Timestamp::second_of(Self) -> Int32
+pub fn Timestamp::seconds_of_day(Self) -> Int32
+pub fn Timestamp::to_string(Self) -> String
+
+pub(all) enum TimestampKind {
+  DayZulu
+  DayLocal
+  HourMinuteSecond
+  MonthDayHourMinute
+}
+pub fn TimestampKind::label(Self) -> String
 
 pub struct Tnc2Packet {
   src : @ax25.Callsign
@@ -198,17 +300,23 @@ pub struct Weather {
   pressure_tenths_hpa : Int32?
   luminosity : Int32?
 }
+pub fn Weather::gust_kmh(Self) -> Double?
 pub fn Weather::gust_mph(Self) -> Int32?
 pub fn Weather::humidity(Self) -> Int32?
 pub fn Weather::luminosity_value(Self) -> Int32?
 pub fn Weather::pressure(Self) -> Int32?
+pub fn Weather::pressure_hpa(Self) -> Double?
 pub fn Weather::rain_1h(Self) -> Int32?
+pub fn Weather::rain_1h_mm(Self) -> Double?
 pub fn Weather::rain_24h(Self) -> Int32?
+pub fn Weather::rain_24h_mm(Self) -> Double?
 pub fn Weather::rain_midnight(Self) -> Int32?
 pub fn Weather::summary(Self) -> String
 pub fn Weather::temperature(Self) -> Int32?
+pub fn Weather::temperature_celsius(Self) -> Double?
 pub fn Weather::timestamp_text(Self) -> String?
 pub fn Weather::wind_direction(Self) -> Int32?
+pub fn Weather::wind_speed_kmh(Self) -> Double?
 pub fn Weather::wind_speed_mph(Self) -> Int32?
 
 // Type aliases

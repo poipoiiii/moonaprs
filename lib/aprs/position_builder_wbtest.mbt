@@ -22,7 +22,9 @@ test "position builder round-trips through the parser" {
 
 ///|
 test "timestamped position builder uses the @ identifier" {
-  let p = Position::new(48.8566, 2.3522, '/', '-', "Paris").with_timestamp("092345z")
+  let p = Position::new(48.8566, 2.3522, '/', '-', "Paris").with_timestamp(
+    "092345z",
+  )
   let encoded = p.to_aprs()
   assert_eq(chars_slice(encoded, 0, 8), "@092345z")
   match parse_info(encoded).unwrap() {
