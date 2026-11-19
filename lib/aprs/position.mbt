@@ -12,6 +12,54 @@ pub struct Position {
 }
 
 ///|
+/// Build an exact, uncompressed position report without a timestamp.
+pub fn Position::new(
+  lat : Double,
+  lon : Double,
+  table : Char,
+  code : Char,
+  comment : String,
+) -> Position {
+  {
+    lat,
+    lon,
+    symbol_table: table,
+    symbol_code: code,
+    comment,
+    ambiguity: 0,
+    timestamp: None,
+    compressed: false,
+  }
+}
+
+///|
+/// Return a copy of the position with the given timestamp.
+pub fn Position::with_timestamp(self : Position, timestamp : String) -> Position {
+  {
+    lat: self.lat,
+    lon: self.lon,
+    symbol_table: self.symbol_table,
+    symbol_code: self.symbol_code,
+    comment: self.comment,
+    ambiguity: self.ambiguity,
+    timestamp: Some(timestamp),
+    compressed: self.compressed,
+  }
+}
+
+///|
+/// Encode the position as an APRS information field, including the data type
+/// identifier. Reports without a timestamp use `=` (position with messaging);
+/// reports with a timestamp use `@`.
+pub fn Position::to_aprs(self : Position) -> String {
+  let dti = match self.timestamp {
+    Some(_) => "@"
+    None => "="
+  }
+  dti + self.to_uncompressed()
+}
+
+///|
 /// Latitude in decimal degrees, positive north.
 pub fn Position::latitude(self : Position) -> Double {
   self.lat

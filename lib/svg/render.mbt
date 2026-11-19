@@ -84,24 +84,7 @@ pub fn Projector::project(
 ///|
 /// Human readable name for common APRS symbol codes.
 pub fn symbol_name(code : Char) -> String {
-  match code {
-    '-' => "house"
-    '>' => "car"
-    '_' => "weather station"
-    'k' => "truck"
-    'j' => "jeep"
-    'b' => "bicycle"
-    'R' => "repeater"
-    '#' => "digipeater"
-    '&' => "gateway"
-    'W' => "weather"
-    'S' => "satellite"
-    'P' => "police"
-    'A' => "aid station"
-    'Y' => "yacht"
-    '/' => "dot"
-    _ => "station"
-  }
+  @aprs.symbol_name_for('/', code)
 }
 
 ///|
