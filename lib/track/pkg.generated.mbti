@@ -1,0 +1,70 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "poipoiiii/moonaprs/lib/track"
+
+import {
+  "poipoiiii/moonaprs/lib/aprs",
+}
+
+// Values
+pub fn bearing_deg(Double, Double, Double, Double) -> Double
+
+pub fn compass_point(Double) -> String
+
+pub fn distance_km(Double, Double, Double, Double) -> Double
+
+pub let earth_radius_km : Double
+
+pub fn maidenhead(Double, Double) -> String
+
+pub fn simplify(Array[TrackPoint], Double) -> Array[TrackPoint]
+
+// Errors
+
+// Types and methods
+pub struct BoundingBox {
+  min_lat : Double
+  max_lat : Double
+  min_lon : Double
+  max_lon : Double
+}
+pub fn BoundingBox::max_latitude(Self) -> Double
+pub fn BoundingBox::max_longitude(Self) -> Double
+pub fn BoundingBox::min_latitude(Self) -> Double
+pub fn BoundingBox::min_longitude(Self) -> Double
+pub fn BoundingBox::padded(Self, Double) -> Self
+
+pub struct Track {
+  callsign : String
+  points : Array[TrackPoint]
+}
+pub fn Track::add(Self, TrackPoint) -> Bool
+pub fn Track::bounds(Self) -> BoundingBox?
+pub fn Track::callsign(Self) -> String
+pub fn Track::length_km(Self) -> Double
+pub fn Track::new(String) -> Self
+pub fn Track::points(Self) -> Array[TrackPoint]
+
+pub struct TrackPoint {
+  lat : Double
+  lon : Double
+  time : String?
+  comment : String
+}
+pub fn TrackPoint::comment_text(Self) -> String
+pub fn TrackPoint::latitude(Self) -> Double
+pub fn TrackPoint::longitude(Self) -> Double
+pub fn TrackPoint::new(Double, Double, String?, String) -> Self
+pub fn TrackPoint::timestamp_text(Self) -> String?
+
+pub struct TrackStore {
+  tracks : Array[Track]
+}
+pub fn TrackStore::all(Self) -> Array[Track]
+pub fn TrackStore::ingest(Self, @aprs.AprsPacket) -> Bool
+pub fn TrackStore::new() -> Self
+pub fn TrackStore::size(Self) -> Int32
+pub fn TrackStore::track(Self, String) -> Track?
+
+// Type aliases
+
+// Traits
