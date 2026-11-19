@@ -30,24 +30,32 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
   - passcode 算法（含 `N0CALL → 13023` 等回归向量）
   - 登录行生成、只读模式
   - 过滤表达式构造（范围、矩形、前缀、好友、类型）
+  - 会话状态机：keepalive、`#` 注释、登录确认、包/错误计数
+  - 重复包窗口（忽略路径，按源/目标/信息字段去重）
 - **报文解析**
   - 无时间戳/带时间戳的非压缩位置（含位置歧义）
   - 压缩位置（base-91）
   - 气象报文与位置附带气象（`_` 符号、`DDD/SSS` 前缀）
   - 遥测（`T#`）
   - 消息与 ACK、状态、对象、条目、查询、第三方报文
+  - 公告与 NWS 消息分类（`BLN0`-`BLN9`、5 字符主题）
+  - 时间戳解析（`DDHHMMz` / `DDHHMM/` / `HHMMSSh` / `MMDDHHMM`）
+  - 主/备符号表查询与 overlay 字符
+  - 位置报文构造与 `=` / `@` 编码往返
 - **航迹**
   - 按呼号/对象/条目聚合
   - 重复信标去重
   - 大圆距离、初始方位、罗盘方位、Maidenhead 网格
+  - 分段速度、航向与平均速度
   - Douglas-Peucker 航迹简化
+  - GPX 1.1 与 GeoJSON 导出
 - **地图**
   - 经纬度 → Web Mercator 投影
   - SVG 航迹折线、起终点标记、呼号标注、经纬网
   - 常见 APRS 符号名称
 - **CLI**：`decode` / `decode-file` / `encode` / `passcode` / `login` / `kiss` /
-  `track` / `svg`
-- **浏览器演示**：粘贴 TNC2 报文，实时显示解码结果与地图
+  `track` / `svg` / `gpx` / `geojson` / `is-feed` / `symbols`
+- **浏览器演示**：粘贴 TNC2 报文，实时显示解码结果与地图，可下载 GPX / GeoJSON
 
 ## 快速开始
 
@@ -68,9 +76,19 @@ moon run cmd/main --target wasm -- encode N0CALL-9 APRS "WIDE2-1" "!4903.50N/072
 # 航迹统计与地图
 moon run cmd/main --target wasm -- track examples/aprs_sample.txt
 moon run cmd/main --target wasm -- svg examples/aprs_sample.txt map.svg 960 600
+moon run cmd/main --target wasm -- gpx examples/aprs_sample.txt map.gpx
+moon run cmd/main --target wasm -- geojson examples/aprs_sample.txt map.geojson
+
+# APRS-IS 会话逻辑演练（登录串、去重、计数）
+moon run cmd/main --target wasm -- is-feed examples/aprs_sample.txt N0CALL-9
+
+# 符号查询
+moon run cmd/main --target wasm -- symbols ">"
 ```
 
-示例地图见 [examples/aprs_sample.svg](examples/aprs_sample.svg)。
+示例地图见 [examples/aprs_sample.svg](examples/aprs_sample.svg)，导出数据见
+[examples/aprs_sample.gpx](examples/aprs_sample.gpx) 与
+[examples/aprs_sample.geojson](examples/aprs_sample.geojson)。
 
 ### 浏览器演示
 
@@ -99,14 +117,15 @@ moon test --target wasm
 
 测试覆盖 CRC 标准校验值、地址字段已知字节、帧/KISS 往返、TNC2 解析、压缩与
 非压缩位置、位置歧义、气象、遥测、消息与 ACK、对象/条目、APRS-IS passcode
-向量、过滤器、大圆距离、Douglas-Peucker 与 SVG 输出。
+向量、过滤器、大圆距离、Douglas-Peucker、时间戳、符号表、公告分类、速度/航向、
+GPX/GeoJSON 导出与 SVG 输出，共 90 个测试。
 
 ## 已知限制
 
 - 暂不解析 Mic-E 编码的位置（常见于 Kenwood/ Yaesu 手持台）。
-- 航迹时间为原始 APRS 时间字符串，暂未做跨时区归一化。
-- APRS-IS 客户端（TCP 连接、过滤订阅、去重）不在当前版本范围内；本项目提供
-  登录串、passcode 与过滤器构造，可直接用于自建客户端。
+- APRS 时间戳不含年份，航迹时间暂保留原始字符串，未做跨年归一化。
+- APRS-IS 客户端（TCP 连接、过滤订阅、断线重连）不在当前版本范围内；本项目提供
+  登录串、passcode、过滤器构造、会话状态机与去重，可直接用于自建客户端。
 
 ## 许可证
 
