@@ -23,6 +23,12 @@ fn usage() -> Unit {
   println(
     "                                    render station tracks as an SVG map",
   )
+  println("  moonaprs gpx <packet-file> [out.gpx]")
+  println("  moonaprs geojson <packet-file> [out.json]")
+  println(
+    "  moonaprs is-feed <file> [callsign] feed a file through APRS-IS session logic",
+  )
+  println("  moonaprs symbols <code>           look up an APRS symbol")
   println("  moonaprs help")
   println("")
   println(
@@ -383,6 +389,12 @@ fn track_command(args : Array[String]) -> Unit {
       sb.write_string(",")
       sb.write_string(@aprs.format_fixed(last.longitude(), 4))
     }
+    let speed = station.average_speed_kmh()
+    if speed > 0.0 {
+      sb.write_string(", avg ")
+      sb.write_string(@aprs.format_fixed(speed, 1))
+      sb.write_string(" km/h")
+    }
     println(sb.to_string())
   }
 }
@@ -419,6 +431,103 @@ fn svg_command(args : Array[String]) -> Unit {
 }
 
 ///|
+fn write_text(path : String, content : String) -> Unit {
+  @fs.write_string_to_file(path, content) catch {
+    _ => {
+      println("error: cannot write " + path)
+      return
+    }
+  }
+  println("wrote " + path)
+}
+
+///|
+fn gpx_command(args : Array[String]) -> Unit {
+  if args.length() < 3 {
+    println("usage: moonaprs gpx <packet-file> [out.gpx]")
+    return
+  }
+  let store = build_store(args[2])
+  let gpx = @track.store_to_gpx(store)
+  if args.length() >= 4 {
+    write_text(args[3], gpx)
+  } else {
+    println(gpx)
+  }
+}
+
+///|
+fn geojson_command(args : Array[String]) -> Unit {
+  if args.length() < 3 {
+    println("usage: moonaprs geojson <packet-file> [out.json]")
+    return
+  }
+  let store = build_store(args[2])
+  let json = @track.store_to_geojson(store)
+  if args.length() >= 4 {
+    write_text(args[3], json)
+  } else {
+    println(json)
+  }
+}
+
+///|
+fn is_feed_command(args : Array[String]) -> Unit {
+  if args.length() < 3 {
+    println("usage: moonaprs is-feed <file> [callsign]")
+    return
+  }
+  let call = if args.length() >= 4 { args[3] } else { "N0CALL" }
+  let code = match @aprs.passcode(call) {
+    Ok(c) => c
+    Err(_) => -1
+  }
+  let session = @aprs.IsSession::new(call, code, "")
+  let dedupe = @aprs.DedupeWindow::new(256)
+  let mut duplicates = 0
+  let mut malformed = 0
+  for line in read_lines(args[2]) {
+    match session.handle_line(line) {
+      @aprs.Packet(packet) =>
+        if !dedupe.is_new(packet) {
+          duplicates = duplicates + 1
+        }
+      @aprs.Malformed(_) => malformed = malformed + 1
+      _ => ()
+    }
+  }
+  println("login: " + session.login_line())
+  println("packets: " + session.packet_count().to_string())
+  println("duplicates: " + duplicates.to_string())
+  println("malformed: " + malformed.to_string())
+}
+
+///|
+fn symbols_command(args : Array[String]) -> Unit {
+  if args.length() < 3 {
+    println("usage: moonaprs symbols <code>  (optionally <table> <code>)")
+    return
+  }
+  let table = if args.length() >= 4 { args[2].to_array()[0] } else { '/' }
+  let code_text = if args.length() >= 4 { args[3] } else { args[2] }
+  if code_text.length() == 0 {
+    println("error: empty symbol code")
+    return
+  }
+  let code = code_text.to_array()[0]
+  let info = @aprs.symbol_info(table, code)
+  println(
+    info.table_char().to_string() +
+    info.code_char().to_string() +
+    "  " +
+    info.name_of() +
+    " (" +
+    info.category_of() +
+    ")",
+  )
+}
+
+///|
 fn main {
   let args = @env.args()
   if args.length() < 2 {
@@ -434,6 +543,10 @@ fn main {
     "kiss" => kiss_command(args)
     "track" => track_command(args)
     "svg" => svg_command(args)
+    "gpx" => gpx_command(args)
+    "geojson" => geojson_command(args)
+    "is-feed" => is_feed_command(args)
+    "symbols" => symbols_command(args)
     "help" => usage()
     _ => {
       println("unknown command: " + args[1])

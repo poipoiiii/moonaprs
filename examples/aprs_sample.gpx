@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="MoonAPRS" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>N0CALL-9</name>
+    <trkseg>
+      <trkpt lat="49.058333" lon="-72.029167">
+        <desc>Test beacon</desc>
+      </trkpt>
+      <trkpt lat="49.068333" lon="-72.038333">
+        <desc>Test beacon 2</desc>
+      </trkpt>
+      <trkpt lat="49.083333" lon="-72.051667">
+        <desc>Test beacon 3</desc>
+      </trkpt>
+    </trkseg>
+  </trk>
+  <trk>
+    <name>K1ABC-7</name>
+    <trkseg>
+      <trkpt lat="49.058333" lon="-72.029167">
+        <desc>Moving east</desc>
+        <cmt>APRS time 092345z</cmt>
+      </trkpt>
+    </trkseg>
+  </trk>
+  <trk>
+    <name>WX2ABC</name>
+    <trkseg>
+      <trkpt lat="49.058333" lon="-72.029167">
+        <desc>240/006g010t070h45b10120</desc>
+      </trkpt>
+    </trkseg>
+  </trk>
+  <trk>
+    <name>PARADE</name>
+    <trkseg>
+      <trkpt lat="49.058333" lon="-72.029167">
+        <desc>Parade route</desc>
+      </trkpt>
+    </trkseg>
+  </trk>
+  <trk>
+    <name>AID</name>
+    <trkseg>
+      <trkpt lat="49.033333" lon="-72.000000">
+        <desc>Aid station</desc>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
