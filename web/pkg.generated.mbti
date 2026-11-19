@@ -1,0 +1,15 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "poipoiiii/moonaprs/web"
+
+// Values
+pub fn js_bind((String) -> Unit) -> Unit
+
+pub fn js_render(String, String) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

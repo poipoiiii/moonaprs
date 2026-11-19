@@ -1,0 +1,12 @@
+import {
+  "poipoiiii/moonaprs/lib/aprs",
+  "poipoiiii/moonaprs/lib/track",
+  "poipoiiii/moonaprs/lib/svg",
+  "moonbitlang/core/builtin",
+}
+
+pkgtype(kind: "executable")
+
+options(
+  targets: { "ffi_js.mbt": [ "js" ], "ffi_stub.mbt": [ "not", "js" ] },
+)
