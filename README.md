@@ -33,7 +33,7 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
   - 会话状态机：keepalive、`#` 注释、登录确认、包/错误计数
   - 重复包窗口（忽略路径，按源/目标/信息字段去重）
   - 传输无关客户端引擎：登录握手、keepalive 看门狗、指数退避重连；附原生 TCP
-    传输与 `is-live` 命令（默认 `rotate.aprs2.net:14580`）
+    传输与 `is-live` 命令（默认 `rotate.aprs2.net:14580`，`--out` 落盘导出 GPX/GeoJSON）
 - **报文解析**
   - 无时间戳/带时间戳的非压缩位置（含位置歧义）
   - 压缩位置（base-91）
@@ -91,6 +91,9 @@ moon run cmd/main --target wasm -- is-feed examples/aprs_sample.txt N0CALL-9
 moon run cmd/main --target native -- is-live N0CALL "r/49.0/-72.0/100"
 moon run cmd/main --target native -- is-live rotate.aprs2.net 14580 N0CALL
 
+# 边接收边落盘：收满 200 个位置点后停止并导出 GPX + GeoJSON
+moon run cmd/main --target native -- is-live N0CALL --out live_track --count 200
+
 # 符号查询
 moon run cmd/main --target wasm -- symbols ">"
 ```
@@ -134,8 +137,8 @@ passcode 向量、过滤器、大圆距离、Douglas-Peucker、时间戳、符�
 - APRS-IS 实时客户端（`is-live`）依赖原始 TCP 套接字，仅原生（native）目标可用，
   构建需系统 C 工具链（Windows 需 MSVC Build Tools）；核心引擎与 `IsTransport`
   抽象本身与后端无关，可在 Wasm/JS 上复用，但这两个后端没有原始套接字。
-- `is-live` 目前只把解码结果流式打印到标准输出，未直接落盘到 `TrackStore`/导出
-  文件（可先用 `is-feed` 对保存的报文做离线处理）。
+- `is-live` 的 `--out` 落盘导出在收满 `--count` 个点后、或每积累 25 个点时触发；
+  直接 Ctrl-C 且未满 25 个新点时，未落盘的少量新点会丢失（离线处理可用 `is-feed`）。
 
 ## 许可证
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0
+
+### Added
+
+- `is-live --out base [--count n]`：实时位置包直接 `ingest` 进 `TrackStore`
+  （`now_reference()` 锚定 epoch），收满 `--count` 个位置点后通过 `on_event` 返回
+  `false` 干净断开并导出 `base.gpx` + `base.geojson`；未设 `--count` 时每积累 25 个
+  点增量重写导出，Ctrl-C 也能保留最近数据。`--count` 单独使用可作限量抓取。
+- flag 与位置参数分离解析（`--out` / `--count` 可出现在任意位置），原有
+  `[host] [port] <callsign> [filter]` 语法不变。
+
+### Changed
+
+- 测试总数保持 111（本轮为 CLI 原生端胶水逻辑，无新增库测试）。
+
 ## 0.5.0
 
 ### Added

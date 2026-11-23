@@ -153,6 +153,11 @@ APRS-IS 上同一报文会经不同中继到达。`DedupeWindow` 以“源>目�
 行读取，90s `SO_RCVTIMEO` 作 keepalive 看门狗），驱动 `is-live` 命令；Wasm/JS
 因无原始套接字，仅编译存根。同一引擎也可接 stdio 或测试双工。
 
+`is-live --out base [--count n]` 把位置包实时 `ingest` 进 `TrackStore`（以当前时刻
+锚定 epoch），收满 n 个点时令 `on_event` 返回 `false` 干净退出并导出 `base.gpx` /
+`base.geojson`；未设 `--count` 时每积累 25 个点增量重写一次导出，避免 Ctrl-C 丢失
+全部数据。原生无信号处理，故用计数与节流代替退出钩子。
+
 ## 5. 航迹与渲染
 
 - 大圆距离使用 haversine，地球半径 6371.0088 km。
@@ -180,4 +185,4 @@ APRS-IS 上同一报文会经不同中继到达。`DedupeWindow` 以“源>目�
 ## 7. 后续方向
 
 1. 更多符号表与图标渲染。
-2. `is-live` 实时流直接落盘到 `TrackStore` 并按需导出 GPX / GeoJSON。
+2. 实时流的服务端过滤调优与断点续传（记录最后接收位置）。
