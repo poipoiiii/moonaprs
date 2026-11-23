@@ -3,7 +3,7 @@
 
 ///|
 fn usage() -> Unit {
-  println("moonaprs 0.5.0 — APRS / AX.25 toolkit")
+  println("moonaprs 0.6.0 — APRS / AX.25 toolkit")
   println("usage:")
   println(
     "  moonaprs decode <tnc2>            decode one packet to JSON-ish text",
@@ -28,9 +28,11 @@ fn usage() -> Unit {
   println(
     "  moonaprs is-feed <file> [callsign] feed a file through APRS-IS session logic",
   )
-  println("  moonaprs is-live [host] [port] <callsign> [filter]")
   println(
-    "                                    connect to a live APRS-IS server (native)",
+    "  moonaprs is-live [host] [port] <callsign> [filter] [--out base] [--count n]",
+  )
+  println(
+    "                                    live APRS-IS; --out saves GPX/GeoJSON (native)",
   )
   println("  moonaprs symbols <code>           look up an APRS symbol")
   println("  moonaprs help")
