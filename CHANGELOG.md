@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.0
+
+### Added
+
+- `DateTime` 模块（`lib/aprs/datetime.mbt`）：proleptic 公历与 Unix epoch 双向换算
+  （Hinnant 算法，负数 epoch 经 `floor_div` 修正），提供 `from_ymd_hms`、
+  `from_unix_ms` / `from_unix_seconds`、`to_unix_seconds`、`add_minutes`、
+  `to_iso8601`、`days_in_month`。
+- `resolve_aprs_time(ts, reference, tz)`：将缺少年份的 APRS 时间戳锚定为“不晚于
+  参考时刻的最近匹配点”，`DayZulu`/`HourMinuteSecond` 按 UTC、`DayLocal`/
+  `MonthDayHourMinute` 应用本地时区偏移；mdhm 最多回溯 10 年、day 最多回溯 24 个月，
+  正确处理跨午夜、跨月与跨年。
+- `TrackPoint` 携带 `epoch`，`TrackStore` 可用 `with_reference(reference, tz)` 锚定；
+  入库时自动解析并锚定时间戳。
+- 速度计算：两点都有 epoch 时用精确秒差（跨月/跨年正确），否则回退到分钟差午夜回绕。
+- GPX 导出：已锚定的点输出 `<time>`（ISO 8601）；GeoJSON 导出在 properties 中输出
+  平行的 `times` 数组。
+- CLI 与浏览器演示均接入当前时间作为锚定参考（`@env.now()` / `Date.now()`）；CLI
+  `track` 摘要显示最后一点的 ISO 时间。
+- 12 个新单元测试（DateTime 往返/epoch/时区/非法日期、锚定解析、跨月速度、导出带时间）。
+
+### Changed
+
+- 版本号升至 0.4.0（登录串与 CLI 版本同步）。
+- 107 个单元测试。
+
 ## 0.3.0
 
 ### Added

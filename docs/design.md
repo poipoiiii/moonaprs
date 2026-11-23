@@ -122,8 +122,13 @@ APRS 时间戳无年份，且分四种形态：
 | `HHMMSSh` | 时/分/秒 | 特殊报文 |
 | `MMDDHHMM` | 月/日/时/分 | 气象 |
 
-解析时校验日/月/时分秒范围；跨午夜计算用 24 小时回绕。由于缺少年份，航迹层保留
-原始时间字符串，速度计算只在同一报文序列内做分钟差。
+解析时校验日/月/时分秒范围。`DateTime` 用 Hinnant 的 `civil_from_days` /
+`days_from_civil` 算法在 proleptic 公历与 Unix epoch 间换算（负数 epoch 经
+`floor_div` 修正截断）；`resolve_aprs_time(ts, reference, tz)` 取“不晚于参考时刻的
+最近匹配点”，把缺少年份的时间戳锚定为完整 UTC 日期时间：`DayZulu`/`HourMinuteSecond`
+按 UTC，`DayLocal`/`MonthDayHourMinute` 先应用本地时区偏移。mdhm 最多回溯 10 年、
+day 最多回溯 24 个月，从而正确处理跨午夜、跨月与跨年。航迹点携带 `epoch`，GPX /
+GeoJSON 据此输出 ISO 8601 时间，速度计算在两点都有 epoch 时走精确秒差。
 
 ### 4.7 符号表
 
@@ -146,11 +151,13 @@ APRS-IS 上同一报文会经不同中继到达。`DedupeWindow` 以“源>目�
 
 - 大圆距离使用 haversine，地球半径 6371.0088 km。
 - 重复信标：与上一个点距离小于 20 m 时忽略。
-- 速度/航向：对相邻且带可解析时间戳的点，用分钟差计算速度，用初始方位作为航向。
+- 速度/航向：相邻点若都已锚定 epoch，用精确秒差计算速度（跨月/跨年正确）；否则
+  回退到同一报文序列内的分钟差（24 小时回绕）；航向取初始方位。
 - Douglas-Peucker 在局部等距平面上做垂距判断，容差单位为 km。
 - Web Mercator：`y = 0.5 - ln(tan(π/4 + φ/2)) / 2π`；投影后保持纵横比并留边距。
-- 导出：GPX 使用 `<trkpt lat lon>` 与 `<desc>`，APRS 时间放在 `<cmt>`；GeoJSON 输出
-  LineString，坐标顺序为 `[lon, lat]`。
+- 导出：GPX 使用 `<trkpt lat lon>`，已锚定的点输出 `<time>`（ISO 8601），原始 APRS
+  注释放在 `<desc>`；GeoJSON 输出 LineString，坐标顺序为 `[lon, lat]`，并在 properties
+  中输出平行的 `times` 数组。
 
 ## 6. 测试策略
 
@@ -167,5 +174,4 @@ APRS-IS 上同一报文会经不同中继到达。`DedupeWindow` 以“源>目�
 ## 7. 后续方向
 
 1. APRS-IS TCP 客户端（连接、过滤、重连）。
-2. 跨年/跨月时间归一化。
-3. 更多符号表与图标渲染。
+2. 更多符号表与图标渲染。

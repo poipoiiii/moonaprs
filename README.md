@@ -40,7 +40,8 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
   - 遥测（`T#`）
   - 消息与 ACK、状态、对象、条目、查询、第三方报文
   - 公告与 NWS 消息分类（`BLN0`-`BLN9`、5 字符主题）
-  - 时间戳解析（`DDHHMMz` / `DDHHMM/` / `HHMMSSh` / `MMDDHHMM`）
+  - 时间戳解析（`DDHHMMz` / `DDHHMM/` / `HHMMSSh` / `MMDDHHMM`）并按参考时刻
+    锚定到完整 UTC 日期时间（支持跨午夜、跨月、跨年）
   - 主/备符号表查询与 overlay 字符
   - 位置报文构造与 `=` / `@` 编码往返
 - **航迹**
@@ -48,6 +49,7 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
   - 重复信标去重
   - 大圆距离、初始方位、罗盘方位、Maidenhead 网格
   - 分段速度、航向与平均速度
+  - 打点锚定 epoch：跨午夜/跨月速度精确计算，GPX/GeoJSON 输出 ISO 8601 时间
   - Douglas-Peucker 航迹简化
   - GPX 1.1 与 GeoJSON 导出
 - **地图**
@@ -119,11 +121,10 @@ moon test --target wasm
 测试覆盖 CRC 标准校验值、地址字段已知字节、帧/KISS 往返、TNC2 解析、压缩与
 非压缩位置、Mic-E 位置、位置歧义、气象、遥测、消息与 ACK、对象/条目、APRS-IS
 passcode 向量、过滤器、大圆距离、Douglas-Peucker、时间戳、符号表、公告分类、
-速度/航向、GPX/GeoJSON 导出与 SVG 输出，共 95 个测试。
+速度/航向、GPX/GeoJSON 导出与 SVG 输出，共 107 个测试。
 
 ## 已知限制
 
-- APRS 时间戳不含年份，航迹时间暂保留原始字符串，未做跨年归一化。
 - APRS-IS 客户端（TCP 连接、过滤订阅、断线重连）不在当前版本范围内；本项目提供
   登录串、passcode、过滤器构造、会话状态机与去重，可直接用于自建客户端。
 
