@@ -20,6 +20,34 @@ fn escape_json(text : String) -> String {
 }
 
 ///|
+fn append_times(sb : StringBuilder, points : Array[TrackPoint]) -> Unit {
+  let mut has_any = false
+  for p in points {
+    if p.instant_iso() is Some(_) {
+      has_any = true
+    }
+  }
+  if !has_any {
+    return
+  }
+  sb.write_string(",\"times\":[")
+  for i in 0..<points.length() {
+    if i > 0 {
+      sb.write_string(",")
+    }
+    match points[i].instant_iso() {
+      Some(iso) => {
+        sb.write_string("\"")
+        sb.write_string(escape_json(iso))
+        sb.write_string("\"")
+      }
+      None => sb.write_string("null")
+    }
+  }
+  sb.write_string("]")
+}
+
+///|
 fn append_track_feature(sb : StringBuilder, track : Track) -> Unit {
   sb.write_string("{\"type\":\"Feature\",\"properties\":{\"callsign\":\"")
   sb.write_string(escape_json(track.callsign()))
@@ -29,6 +57,7 @@ fn append_track_feature(sb : StringBuilder, track : Track) -> Unit {
   sb.write_string(@aprs.format_fixed(track.length_km(), 3))
   sb.write_string(",\"average_speed_kmh\":")
   sb.write_string(@aprs.format_fixed(track.average_speed_kmh(), 2))
+  append_times(sb, track.points())
   sb.write_string("},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[")
   let points = track.points()
   for i in 0..<points.length() {

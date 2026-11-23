@@ -30,6 +30,10 @@ fn append_track_gpx(sb : StringBuilder, track : Track) -> Unit {
     sb.write_string("\" lon=\"")
     sb.write_string(@aprs.format_fixed(point.longitude(), 6))
     sb.write_string("\">\n")
+    match point.instant_iso() {
+      Some(iso) => sb.write_string("        <time>" + iso + "</time>\n")
+      None => ()
+    }
     let comment = point.comment_text()
     if comment.length() > 0 {
       sb.write_string("        <desc>")

@@ -71,23 +71,30 @@ pub struct TrackPoint {
   time : String?
   comment : String
   symbol : Char?
+  epoch : Int64?
 }
 pub fn TrackPoint::comment_text(Self) -> String
+pub fn TrackPoint::epoch_seconds(Self) -> Int64?
+pub fn TrackPoint::instant_iso(Self) -> String?
 pub fn TrackPoint::latitude(Self) -> Double
 pub fn TrackPoint::longitude(Self) -> Double
 pub fn TrackPoint::new(Double, Double, String?, String) -> Self
 pub fn TrackPoint::symbol_code(Self) -> Char?
 pub fn TrackPoint::timestamp_text(Self) -> String?
+pub fn TrackPoint::with_epoch(Self, Int64) -> Self
 pub fn TrackPoint::with_symbol(Double, Double, String?, String, Char) -> Self
 
 pub struct TrackStore {
   tracks : Array[Track]
+  reference : @aprs.DateTime
+  tz_min : Int32
 }
 pub fn TrackStore::all(Self) -> Array[Track]
 pub fn TrackStore::ingest(Self, @aprs.AprsPacket) -> Bool
 pub fn TrackStore::new() -> Self
 pub fn TrackStore::size(Self) -> Int32
 pub fn TrackStore::track(Self, String) -> Track?
+pub fn TrackStore::with_reference(@aprs.DateTime, Int32) -> Self
 
 // Type aliases
 

@@ -6,6 +6,7 @@ pub struct TrackPoint {
   time : String?
   comment : String
   symbol : Char?
+  epoch : Int64?
 }
 
 ///|
@@ -16,7 +17,7 @@ pub fn TrackPoint::new(
   time : String?,
   comment : String,
 ) -> TrackPoint {
-  { lat, lon, time, comment, symbol: None, }
+  { lat, lon, time, comment, symbol: None, epoch: None, }
 }
 
 ///|
@@ -28,7 +29,35 @@ pub fn TrackPoint::with_symbol(
   comment : String,
   symbol : Char,
 ) -> TrackPoint {
-  { lat, lon, time, comment, symbol: Some(symbol), }
+  { lat, lon, time, comment, symbol: Some(symbol), epoch: None, }
+}
+
+///|
+/// Return a copy of this point with a resolved Unix epoch (UTC).
+pub fn TrackPoint::with_epoch(self : TrackPoint, epoch : Int64) -> TrackPoint {
+  {
+    lat: self.lat,
+    lon: self.lon,
+    time: self.time,
+    comment: self.comment,
+    symbol: self.symbol,
+    epoch: Some(epoch),
+  }
+}
+
+///|
+/// Resolved Unix epoch (seconds, UTC) when the timestamp could be anchored.
+pub fn TrackPoint::epoch_seconds(self : TrackPoint) -> Int64? {
+  self.epoch
+}
+
+///|
+/// ISO 8601 UTC instant, when the timestamp could be anchored to a real date.
+pub fn TrackPoint::instant_iso(self : TrackPoint) -> String? {
+  match self.epoch {
+    Some(e) => Some(@aprs.DateTime::from_unix_seconds(e).to_iso8601())
+    None => None
+  }
 }
 
 ///|
@@ -284,11 +313,30 @@ pub fn simplify(
 /// A collection of tracks keyed by callsign.
 pub struct TrackStore {
   tracks : Array[Track]
+  reference : @aprs.DateTime
+  tz_min : Int32
 }
 
 ///|
+/// Create an empty store without a reference clock.  Timestamps cannot be
+/// anchored until `with_reference` supplies one.
 pub fn TrackStore::new() -> TrackStore {
-  { tracks: [], }
+  {
+    tracks: [],
+    reference: @aprs.DateTime::from_ymd_hms(1970, 1, 1, 0, 0, 0),
+    tz_min: 0,
+  }
+}
+
+///|
+/// Create a store that anchors APRS timestamps to `reference` (UTC).
+/// `tz_min` is the UTC offset, in minutes, used for local-form timestamps
+/// (for example UTC+8 is `480`).
+pub fn TrackStore::with_reference(
+  reference : @aprs.DateTime,
+  tz_min : Int32,
+) -> TrackStore {
+  { tracks: [], reference, tz_min, }
 }
 
 ///|
@@ -365,16 +413,37 @@ fn TrackStore::record(
 }
 
 ///|
+/// Anchor the point's raw APRS timestamp (if any) to a real UTC instant.
+fn TrackStore::resolve_point(
+  self : TrackStore,
+  point : TrackPoint,
+) -> TrackPoint {
+  match point.time {
+    Some(raw) =>
+      match @aprs.Timestamp::parse(raw) {
+        Ok(ts) =>
+          match @aprs.resolve_aprs_time(ts, self.reference, self.tz_min) {
+            Some(dt) => point.with_epoch(dt.to_unix_seconds())
+            None => point
+          }
+        Err(_) => point
+      }
+    None => point
+  }
+}
+
+///|
 fn TrackStore::record_point(
   self : TrackStore,
   key : String,
   point : TrackPoint,
 ) -> Bool {
+  let resolved = self.resolve_point(point)
   match self.find(key) {
-    Some(track) => track.add(point)
+    Some(track) => track.add(resolved)
     None => {
       let track = Track::new(key)
-      ignore(track.add(point))
+      ignore(track.add(resolved))
       self.tracks.push(track)
       true
     }

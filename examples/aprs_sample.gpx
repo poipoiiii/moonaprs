@@ -18,6 +18,7 @@
     <name>K1ABC-7</name>
     <trkseg>
       <trkpt lat="49.058333" lon="-72.029167">
+        <time>2026-11-09T23:45:00Z</time>
         <desc>Moving east</desc>
         <cmt>APRS time 092345z</cmt>
       </trkpt>
