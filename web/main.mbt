@@ -58,7 +58,7 @@ fn latlon(p : @aprs.Position) -> String {
 
 ///|
 fn parse_all(text : String) -> Unit {
-  let store = @track.TrackStore::new()
+  let store = make_store()
   let report = StringBuilder()
   let mut total = 0
   let mut ok = 0
@@ -98,8 +98,16 @@ fn parse_all(text : String) -> Unit {
 }
 
 ///|
+fn make_store() -> @track.TrackStore {
+  @track.TrackStore::with_reference(
+    @aprs.DateTime::from_unix_ms(js_now_ms().to_int64()),
+    0,
+  )
+}
+
+///|
 fn build_store(text : String) -> @track.TrackStore {
-  let store = @track.TrackStore::new()
+  let store = make_store()
   for line in text.split("\n") {
     let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 || trimmed.has_prefix("#") {

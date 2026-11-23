@@ -3,7 +3,7 @@
 
 ///|
 fn usage() -> Unit {
-  println("moonaprs 0.3.0 — APRS / AX.25 toolkit")
+  println("moonaprs 0.4.0 — APRS / AX.25 toolkit")
   println("usage:")
   println(
     "  moonaprs decode <tnc2>            decode one packet to JSON-ish text",
@@ -372,8 +372,14 @@ fn kiss_command(args : Array[String]) -> Unit {
 }
 
 ///|
+/// Current UTC instant, used to anchor year-less APRS timestamps.
+fn now_reference() -> @aprs.DateTime {
+  @aprs.DateTime::from_unix_ms(@env.now().reinterpret_as_int64())
+}
+
+///|
 fn build_store(path : String) -> @track.TrackStore {
-  let store = @track.TrackStore::new()
+  let store = @track.TrackStore::with_reference(now_reference(), 0)
   let mut bad = 0
   for line in read_lines(path) {
     match @aprs.AprsPacket::parse(line) {
@@ -413,6 +419,13 @@ fn track_command(args : Array[String]) -> Unit {
       sb.write_string(@aprs.format_fixed(last.latitude(), 4))
       sb.write_string(",")
       sb.write_string(@aprs.format_fixed(last.longitude(), 4))
+      match last.instant_iso() {
+        Some(iso) => {
+          sb.write_string(" @ ")
+          sb.write_string(iso)
+        }
+        None => ()
+      }
     }
     let speed = station.average_speed_kmh()
     if speed > 0.0 {

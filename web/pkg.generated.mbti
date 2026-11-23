@@ -6,6 +6,8 @@ pub fn js_bind((String) -> Unit, (String) -> Unit, (String) -> Unit) -> Unit
 
 pub fn js_download(String, String) -> Unit
 
+pub fn js_now_ms() -> Double
+
 pub fn js_render(String, String) -> Unit
 
 // Errors

@@ -21,3 +21,8 @@ pub fn js_download(name : String, content : String) -> Unit {
   ignore(name)
   ignore(content)
 }
+
+///|
+pub fn js_now_ms() -> Double {
+  0.0
+}

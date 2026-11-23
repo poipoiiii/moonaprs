@@ -37,3 +37,10 @@ pub extern "js" fn js_download(name : String, content : String) -> Unit =
   #|   a.click();
   #|   URL.revokeObjectURL(url);
   #| }
+
+///|
+/// Current time as milliseconds since the Unix epoch (browser wall clock).
+pub extern "js" fn js_now_ms() -> Double =
+  #| function() {
+  #|   return Date.now();
+  #| }
