@@ -32,6 +32,8 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
   - 过滤表达式构造（范围、矩形、前缀、好友、类型）
   - 会话状态机：keepalive、`#` 注释、登录确认、包/错误计数
   - 重复包窗口（忽略路径，按源/目标/信息字段去重）
+  - 传输无关客户端引擎：登录握手、keepalive 看门狗、指数退避重连；附原生 TCP
+    传输与 `is-live` 命令（默认 `rotate.aprs2.net:14580`）
 - **报文解析**
   - 无时间戳/带时间戳的非压缩位置（含位置歧义）
   - 压缩位置（base-91）
@@ -57,7 +59,7 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
   - SVG 航迹折线、起终点标记、呼号标注、经纬网
   - 常见 APRS 符号名称
 - **CLI**：`decode` / `decode-file` / `encode` / `passcode` / `login` / `kiss` /
-  `track` / `svg` / `gpx` / `geojson` / `is-feed` / `symbols`
+  `track` / `svg` / `gpx` / `geojson` / `is-feed` / `is-live` / `symbols`
 - **浏览器演示**：粘贴 TNC2 报文，实时显示解码结果与地图，可下载 GPX / GeoJSON
 
 ## 快速开始
@@ -84,6 +86,10 @@ moon run cmd/main --target wasm -- geojson examples/aprs_sample.txt map.geojson
 
 # APRS-IS 会话逻辑演练（登录串、去重、计数）
 moon run cmd/main --target wasm -- is-feed examples/aprs_sample.txt N0CALL-9
+
+# 实时接收 APRS-IS 数据流（需原生目标，需 MSVC/系统 C 工具链）
+moon run cmd/main --target native -- is-live N0CALL "r/49.0/-72.0/100"
+moon run cmd/main --target native -- is-live rotate.aprs2.net 14580 N0CALL
 
 # 符号查询
 moon run cmd/main --target wasm -- symbols ">"
@@ -121,12 +127,15 @@ moon test --target wasm
 测试覆盖 CRC 标准校验值、地址字段已知字节、帧/KISS 往返、TNC2 解析、压缩与
 非压缩位置、Mic-E 位置、位置歧义、气象、遥测、消息与 ACK、对象/条目、APRS-IS
 passcode 向量、过滤器、大圆距离、Douglas-Peucker、时间戳、符号表、公告分类、
-速度/航向、GPX/GeoJSON 导出与 SVG 输出，共 107 个测试。
+速度/航向、GPX/GeoJSON 导出与 SVG 输出，共 111 个测试。
 
 ## 已知限制
 
-- APRS-IS 客户端（TCP 连接、过滤订阅、断线重连）不在当前版本范围内；本项目提供
-  登录串、passcode、过滤器构造、会话状态机与去重，可直接用于自建客户端。
+- APRS-IS 实时客户端（`is-live`）依赖原始 TCP 套接字，仅原生（native）目标可用，
+  构建需系统 C 工具链（Windows 需 MSVC Build Tools）；核心引擎与 `IsTransport`
+  抽象本身与后端无关，可在 Wasm/JS 上复用，但这两个后端没有原始套接字。
+- `is-live` 目前只把解码结果流式打印到标准输出，未直接落盘到 `TrackStore`/导出
+  文件（可先用 `is-feed` 对保存的报文做离线处理）。
 
 ## 许可证
 

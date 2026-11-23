@@ -16,11 +16,11 @@ test "aprs-is passcode vectors" {
 test "login line formatting" {
   assert_eq(
     login_line("N0CALL", 13023, ""),
-    "user N0CALL pass 13023 vers MoonAPRS 0.4.0",
+    "user N0CALL pass 13023 vers MoonAPRS 0.5.0",
   )
   assert_eq(
     login_line("N0CALL", -1, filter_range(49.0, -72.0, 100)),
-    "user N0CALL pass -1 vers MoonAPRS 0.4.0 filter r/49.0000/-72.0000/100",
+    "user N0CALL pass -1 vers MoonAPRS 0.5.0 filter r/49.0000/-72.0000/100",
   )
 }
 

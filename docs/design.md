@@ -9,7 +9,7 @@ MoonAPRS 是一个纯 MoonBit 的 APRS / AX.25 协议栈。设计目标是：
 3. **分层清晰**：比特层（AX.25/HDLC/KISS）与语义层（APRS 报文）解耦。
 4. **可演示**：CLI 与浏览器演示直接使用同一套库代码。
 
-不包含的内容：射频调制、声卡 TNC、APRS-IS TCP 客户端。
+不包含的内容：射频调制、声卡 TNC；APRS-IS 实时客户端依赖原始 TCP 套接字，仅原生目标提供（核心引擎与传输抽象仍与后端无关）。
 
 ## 2. 分层
 
@@ -141,11 +141,17 @@ overlay。`SymbolInfo` 同时给出名称与粗类别（vehicle/weather/infrastr
 消息地址 `BLN0`-`BLN9` 视为公告，正文前 5 字符为主题；`NWS` 前缀视为气象部门
 消息。分类不影响消息本身的解析，只提供展示与路由用的标签。
 
-### 4.9 去重与会话
+### 4.9 去重、会话与客户端
 
 APRS-IS 上同一报文会经不同中继到达。`DedupeWindow` 以“源>目标:信息字段”为签名，
-保留最近 N 条，命中即丢弃。`IsSession` 维护登录、keepalive、`#` 注释解析与计数，
-网络 IO 留给宿主程序，便于在任意后端复用。
+保留最近 N 条，命中即丢弃。`IsSession` 维护登录、keepalive、`#` 注释解析与计数。
+
+`IsClient` 是传输无关的客户端引擎：定义 `IsTransport` trait（`read_line` /
+`write_line` / `close`），负责发送登录行、分类服务器行、确认登录、去重与计数，
+并在 `read_line` 返回 `None`（EOF 或读超时）时以指数退避重连（1s 起，封顶 30s）。
+网络 IO 由 `IsTransport` 实现提供：`cmd/main` 附带原生 TCP 传输（C FFI，阻塞式
+行读取，90s `SO_RCVTIMEO` 作 keepalive 看门狗），驱动 `is-live` 命令；Wasm/JS
+因无原始套接字，仅编译存根。同一引擎也可接 stdio 或测试双工。
 
 ## 5. 航迹与渲染
 
@@ -173,5 +179,5 @@ APRS-IS 上同一报文会经不同中继到达。`DedupeWindow` 以“源>目�
 
 ## 7. 后续方向
 
-1. APRS-IS TCP 客户端（连接、过滤、重连）。
-2. 更多符号表与图标渲染。
+1. 更多符号表与图标渲染。
+2. `is-live` 实时流直接落盘到 `TrackStore` 并按需导出 GPX / GeoJSON。

@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.0
+
+### Added
+
+- `lib/aprs/is_client.mbt`：传输无关的 APRS-IS 客户端引擎。定义 `pub(open) trait
+  IsTransport { read_line / write_line / close }`，`IsClient` 负责发送登录行、分类
+  服务器行（`ClientLine`：`Comment` / `Packet` / `Malformed` / `Ignored` /
+  `LoggedIn` / `Eof`）、确认登录、`DedupeWindow` 去重与计数；`run` 循环在 EOF/读
+  失败时以指数退避重连（1s 起翻倍，封顶 30s），同一引擎可接 TCP / stdio / 测试双工。
+- `lib/aprs/is_client_wbtest.mbt`：4 个白盒测试（脚本化内存传输）——登录 + verified
+  确认、重复包抑制、EOF 后重连、连接失败退避后成功。
+- 原生 TCP 传输：`cmd/main/tcp_native.c`（跨平台阻塞套接字，borrowed-buffer 行读取，
+  90s `SO_RCVTIMEO` keepalive 看门狗，静态 64KB 重组缓冲）+ `cmd/main/tcp_native.mbt`
+  （C FFI，`TcpTransport` 实现 `IsTransport`）；`cmd/main/tcp_other.mbt` 为
+  Wasm / JS 提供编译存根（无原始套接字）。
+- CLI 新增 `is-live [host] [port] <callsign> [filter]`：连接 APRS-IS（默认
+  `rotate.aprs2.net:14580`），流式打印事件（注释 / 报文 / 重复 / 重连），Ctrl-C
+  退出。仅原生目标可用（需 C 工具链构建）。
+
+### Changed
+
+- 测试总数 107 → 111。
+
 ## 0.4.0
 
 ### Added
