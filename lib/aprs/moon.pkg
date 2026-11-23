@@ -2,4 +2,5 @@ import {
   "poipoiiii/moonaprs/lib/ax25",
   "moonbitlang/core/builtin",
   "moonbitlang/core/math",
+  "moonbitlang/core/encoding/utf8",
 }

@@ -8,3 +8,12 @@ import {
 }
 
 pkgtype(kind: "executable")
+
+options(
+  "native-stub": [ "tcp_native.c" ],
+  targets: {
+    "tcp_native.mbt": [ "native", "llvm" ],
+    "is_live_native.mbt": [ "native", "llvm" ],
+    "is_live_other.mbt": [ "wasm", "wasm-gc", "js" ],
+  },
+)

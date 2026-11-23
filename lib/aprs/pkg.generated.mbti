@@ -84,6 +84,10 @@ pub fn symbol_info(Char, Char) -> SymbolInfo
 
 pub fn symbol_name_for(Char, Char) -> String
 
+pub fn utf8_decode_lossy(BytesView) -> String
+
+pub fn utf8_encode(String) -> Bytes
+
 pub fn weather_from_comment(String) -> Weather?
 
 pub fn weather_from_position(Position) -> Weather?
@@ -115,6 +119,15 @@ pub fn AprsPacket::body(Self) -> AprsBody
 pub fn AprsPacket::header(Self) -> Tnc2Packet
 pub fn AprsPacket::parse(String) -> Result[Self, String]
 pub fn AprsPacket::to_tnc2(Self) -> String
+
+pub(all) enum ClientLine {
+  Comment(String)
+  Packet(AprsPacket)
+  Malformed(String)
+  Ignored
+  LoggedIn(String)
+  Eof
+}
 
 pub struct DateTime {
   year : Int32
@@ -149,6 +162,24 @@ pub fn FilterBuilder::prefix(Self, Array[String]) -> Self
 pub fn FilterBuilder::range(Self, Double, Double, Int32) -> Self
 pub fn FilterBuilder::term(Self, String) -> Self
 pub fn FilterBuilder::to_string(Self) -> String
+
+pub struct IsClient {
+  session : IsSession
+  dedupe : DedupeWindow
+  mut was_logged_in : Bool
+  mut duplicates : Int32
+  mut reconnects : Int32
+}
+pub fn IsClient::comment_count(Self) -> Int32
+pub fn IsClient::duplicate_count(Self) -> Int32
+pub fn IsClient::is_logged_in(Self) -> Bool
+pub fn IsClient::login_line(Self) -> String
+pub fn IsClient::new(String, Int32, String) -> Self
+pub fn IsClient::packet_count(Self) -> Int32
+pub fn IsClient::process_line(Self, String) -> ClientLine
+pub fn IsClient::reconnect_count(Self) -> Int32
+pub fn[T : IsTransport] IsClient::run(Self, () -> T?, (ClientLine) -> Bool, (Int32) -> Unit) -> Unit
+pub fn IsClient::server_name(Self) -> String
 
 pub(all) enum IsEvent {
   Comment(String)
@@ -369,3 +400,8 @@ pub fn Weather::wind_speed_mph(Self) -> Int32?
 // Type aliases
 
 // Traits
+pub(open) trait IsTransport {
+  fn read_line(Self) -> String?
+  fn write_line(Self, String) -> Unit
+  fn close(Self) -> Unit
+}

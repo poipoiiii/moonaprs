@@ -2,10 +2,16 @@
 package "poipoiiii/moonaprs/cmd/main"
 
 // Values
+pub fn sleep_ms(Int32) -> Unit
+
+pub fn tcp_connect(String, Int32) -> TcpTransport?
 
 // Errors
 
 // Types and methods
+pub struct TcpTransport {
+  handle : Int64
+}
 
 // Type aliases
 
