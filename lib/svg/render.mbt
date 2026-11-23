@@ -112,76 +112,97 @@ let palette : Array[String] = [
 ]
 
 ///|
-fn append_marker(
-  sb : StringBuilder,
-  x : Double,
-  y : Double,
-  color : String,
-  symbol : Char?,
-) -> Unit {
+fn num(v : Double) -> String {
+  @aprs.format_fixed(v, 1)
+}
+
+///|
+/// SVG element for the station marker. Shape follows the APRS symbol
+/// category: vehicle/aircraft triangle, marine inverted triangle, weather
+/// square, infrastructure diamond, emergency cross, anything else a circle.
+fn marker_svg(x : Double, y : Double, color : String, symbol : Char?) -> String {
   let code = match symbol {
     Some(c) => c
     None => '-'
   }
-  let sx = @aprs.format_fixed(x, 1)
-  let sy = @aprs.format_fixed(y, 1)
-  match code {
-    '>' => {
-      sb.write_string("<polygon points=\"")
-      sb.write_string(@aprs.format_fixed(x, 1))
-      sb.write_string(",")
-      sb.write_string(@aprs.format_fixed(y - 6.0, 1))
-      sb.write_string(" ")
-      sb.write_string(@aprs.format_fixed(x - 5.5, 1))
-      sb.write_string(",")
-      sb.write_string(@aprs.format_fixed(y + 4.0, 1))
-      sb.write_string(" ")
-      sb.write_string(@aprs.format_fixed(x + 5.5, 1))
-      sb.write_string(",")
-      sb.write_string(@aprs.format_fixed(y + 4.0, 1))
-      sb.write_string("\" fill=\"")
-      sb.write_string(color)
-      sb.write_string("\"/>\n")
-    }
-    '_' | 'W' | 'w' => {
-      sb.write_string("<rect x=\"")
-      sb.write_string(@aprs.format_fixed(x - 4.5, 1))
-      sb.write_string("\" y=\"")
-      sb.write_string(@aprs.format_fixed(y - 4.5, 1))
-      sb.write_string("\" width=\"9\" height=\"9\" fill=\"")
-      sb.write_string(color)
-      sb.write_string("\"/>\n")
-    }
-    '#' => {
-      sb.write_string("<polygon points=\"")
-      sb.write_string(sx)
-      sb.write_string(",")
-      sb.write_string(@aprs.format_fixed(y - 6.0, 1))
-      sb.write_string(" ")
-      sb.write_string(@aprs.format_fixed(x + 6.0, 1))
-      sb.write_string(",")
-      sb.write_string(sy)
-      sb.write_string(" ")
-      sb.write_string(sx)
-      sb.write_string(",")
-      sb.write_string(@aprs.format_fixed(y + 6.0, 1))
-      sb.write_string(" ")
-      sb.write_string(@aprs.format_fixed(x - 6.0, 1))
-      sb.write_string(",")
-      sb.write_string(sy)
-      sb.write_string("\" fill=\"")
-      sb.write_string(color)
-      sb.write_string("\"/>\n")
-    }
-    _ => {
-      sb.write_string("<circle cx=\"")
-      sb.write_string(sx)
-      sb.write_string("\" cy=\"")
-      sb.write_string(sy)
-      sb.write_string("\" r=\"5\" fill=\"")
-      sb.write_string(color)
-      sb.write_string("\"/>\n")
-    }
+  let category = @aprs.symbol_category_for('/', code)
+  match category {
+    "vehicle" | "aircraft" =>
+      "<polygon points=\"" +
+      num(x) +
+      "," +
+      num(y - 6.0) +
+      " " +
+      num(x - 5.5) +
+      "," +
+      num(y + 4.0) +
+      " " +
+      num(x + 5.5) +
+      "," +
+      num(y + 4.0) +
+      "\" fill=\"" +
+      color +
+      "\"/>\n"
+    "marine" =>
+      "<polygon points=\"" +
+      num(x - 5.5) +
+      "," +
+      num(y - 4.0) +
+      " " +
+      num(x + 5.5) +
+      "," +
+      num(y - 4.0) +
+      " " +
+      num(x) +
+      "," +
+      num(y + 6.0) +
+      "\" fill=\"" +
+      color +
+      "\"/>\n"
+    "weather" =>
+      "<rect x=\"" +
+      num(x - 4.5) +
+      "\" y=\"" +
+      num(y - 4.5) +
+      "\" width=\"9\" height=\"9\" fill=\"" +
+      color +
+      "\"/>\n"
+    "infrastructure" =>
+      "<polygon points=\"" +
+      num(x) +
+      "," +
+      num(y - 6.0) +
+      " " +
+      num(x + 6.0) +
+      "," +
+      num(y) +
+      " " +
+      num(x) +
+      "," +
+      num(y + 6.0) +
+      " " +
+      num(x - 6.0) +
+      "," +
+      num(y) +
+      "\" fill=\"" +
+      color +
+      "\"/>\n"
+    "emergency" =>
+      "<path d=\"M " +
+      num(x - 1.5) +
+      "," +
+      num(y - 6.0) +
+      " h3 v4.5 h4.5 v3 h-4.5 v4.5 h-3 v-4.5 h-4.5 v-3 h4.5 z\" fill=\"" +
+      color +
+      "\"/>\n"
+    _ =>
+      "<circle cx=\"" +
+      num(x) +
+      "\" cy=\"" +
+      num(y) +
+      "\" r=\"5\" fill=\"" +
+      color +
+      "\"/>\n"
   }
 }
 
@@ -189,8 +210,9 @@ fn append_marker(
 /// Render the given tracks as an SVG map.
 ///
 /// The map uses Web Mercator projection, a light background, one coloured
-/// polyline per station, a hollow circle at the first point and a filled
-/// circle with the callsign label at the last point.
+/// polyline per station, a hollow circle at the first point and a
+/// category-shaped marker (triangle / square / diamond / cross / circle)
+/// with the callsign label at the last point.
 pub fn render_tracks(
   tracks : Array[@track.Track],
   width : Int32,
@@ -314,7 +336,7 @@ pub fn render_tracks(
     sb.write_string("\" stroke-width=\"2\"/>\n")
     let last = points[points.length() - 1]
     let (lx, ly) = projector.project(last.latitude(), last.longitude())
-    append_marker(sb, lx, ly, color, last.symbol_code())
+    sb.write_string(marker_svg(lx, ly, color, last.symbol_code()))
     sb.write_string("<text x=\"")
     sb.write_string(@aprs.format_fixed(lx + 9.0, 1))
     sb.write_string("\" y=\"")
