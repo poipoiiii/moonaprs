@@ -3,7 +3,7 @@
 
 ///|
 fn usage() -> Unit {
-  println("moonaprs 0.6.0 — APRS / AX.25 toolkit")
+  println("moonaprs 0.7.0 — APRS / AX.25 toolkit")
   println("usage:")
   println(
     "  moonaprs decode <tnc2>            decode one packet to JSON-ish text",

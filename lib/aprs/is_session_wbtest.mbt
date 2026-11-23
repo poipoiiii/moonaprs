@@ -3,7 +3,7 @@ test "session login line uses the filter" {
   let session = IsSession::new("N0CALL", 13023, "r/49.0/-72.0/100")
   assert_eq(
     session.login_line(),
-    "user N0CALL pass 13023 vers MoonAPRS 0.6.0 filter r/49.0/-72.0/100",
+    "user N0CALL pass 13023 vers MoonAPRS 0.7.0 filter r/49.0/-72.0/100",
   )
   assert_eq(session.is_logged_in(), false)
 }

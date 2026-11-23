@@ -57,6 +57,8 @@ APRS-IS 互联网骨干交换位置、天气、遥测、短消息与对象信息
 - **地图**
   - 经纬度 → Web Mercator 投影
   - SVG 航迹折线、起终点标记、呼号标注、经纬网
+  - 站点标记按 APRS 符号类别成形：车辆/飞行器三角、船艇倒三角、气象方块、
+    基础设施菱形、应急十字、其余圆形
   - 常见 APRS 符号名称
 - **CLI**：`decode` / `decode-file` / `encode` / `passcode` / `login` / `kiss` /
   `track` / `svg` / `gpx` / `geojson` / `is-feed` / `is-live` / `symbols`
@@ -130,7 +132,7 @@ moon test --target wasm
 测试覆盖 CRC 标准校验值、地址字段已知字节、帧/KISS 往返、TNC2 解析、压缩与
 非压缩位置、Mic-E 位置、位置歧义、气象、遥测、消息与 ACK、对象/条目、APRS-IS
 passcode 向量、过滤器、大圆距离、Douglas-Peucker、时间戳、符号表、公告分类、
-速度/航向、GPX/GeoJSON 导出与 SVG 输出，共 111 个测试。
+速度/航向、GPX/GeoJSON 导出与 SVG 输出，共 116 个测试。
 
 ## 已知限制
 

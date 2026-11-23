@@ -1,6 +1,6 @@
 name = "poipoiiii/moonaprs"
 
-version = "0.6.0"
+version = "0.7.0"
 
 description = "APRS / AX.25 amateur radio data stack for MoonBit: AX.25 UI frames, KISS, TNC2, APRS-IS passcode, packet parsing and SVG maps"
 
