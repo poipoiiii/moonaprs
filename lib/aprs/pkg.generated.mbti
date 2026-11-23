@@ -18,6 +18,8 @@ pub fn chars_slice(String, Int32, Int32) -> String
 
 pub fn classify_message(Message) -> MessageKind
 
+pub fn days_in_month(Int32, Int32) -> Int32
+
 pub fn describe_message(Message) -> String
 
 pub fn drop_last(String) -> String
@@ -70,6 +72,8 @@ pub fn parse_weather_with_prefix(String) -> Weather
 
 pub fn passcode(String) -> Result[Int32, String]
 
+pub fn resolve_aprs_time(Timestamp, DateTime, Int32) -> DateTime?
+
 pub fn split_char(String, Char) -> Array[String]
 
 pub fn split_once(String, Char) -> (String, String)?
@@ -111,6 +115,21 @@ pub fn AprsPacket::body(Self) -> AprsBody
 pub fn AprsPacket::header(Self) -> Tnc2Packet
 pub fn AprsPacket::parse(String) -> Result[Self, String]
 pub fn AprsPacket::to_tnc2(Self) -> String
+
+pub struct DateTime {
+  year : Int32
+  month : Int32
+  day : Int32
+  hour : Int32
+  minute : Int32
+  second : Int32
+}
+pub fn DateTime::add_minutes(Self, Int32) -> Self
+pub fn DateTime::from_unix_ms(Int64) -> Self
+pub fn DateTime::from_unix_seconds(Int64) -> Self
+pub fn DateTime::from_ymd_hms(Int32, Int32, Int32, Int32, Int32, Int32) -> Self
+pub fn DateTime::to_iso8601(Self) -> String
+pub fn DateTime::to_unix_seconds(Self) -> Int64
 
 pub struct DedupeWindow {
   capacity : Int32
